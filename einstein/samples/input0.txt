@@ -1,0 +1,6 @@
+((HOUSE_COLOR: '💛') <-> (FOOD: '🍎'))
+((PERSON: 'A') <-> (HOUSE_NUMBER: '1⃣'))
+not ((HOUSE_NUMBER: '2⃣') <-> (HOUSE_COLOR: '💙'))
+not ((HOUSE_NUMBER: '2⃣') <-> (FOOD: '🍐'))
+((HOUSE_NUMBER: '1⃣') <-> (HOUSE_COLOR: '💛'))
+not ((PERSON: 'C') <-> (HOUSE_NUMBER: '2⃣'))

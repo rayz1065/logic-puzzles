@@ -1,0 +1,118 @@
+{
+    "DICTIONARY": {
+        "HOUSE_NUMBER": [["1⃣", "1️⃣"], ["2⃣", "2️⃣"], ["3⃣", "3️⃣"], ["4⃣", "4️⃣"], ["5⃣", "5️⃣"], ["6⃣", "6️⃣"]],
+        "HOUSE_COLOR": ["💛", "💙", "❤️", "💚", "💜", "🖤"],
+        "PERSON": ["A", "B", "C", "D", "E", "F"],
+        "FOOD": ["🍎", "🍐", "🍊", "🍌", "🍍", "🍇"],
+        "PET": ["🐶", "🐈", "🐠", "🐢", "🐤", "🐭"],
+        "DRINK": ["🍹", "🍷", "🍺", "☕", "🥛", "🥃"],
+        "SPORT": ["⚽", "🏀", "🏐", "🎾", "🏒", "🏈"]
+    },
+    "PARSING_RULES": [
+        {
+            "item_1": "PERSON",
+            "item_2": "HOUSE_NUMBER",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PERSON: '(?P<item_1>.*?)'\\)\\s* <-> \\(HOUSE_NUMBER: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PERSON",
+            "item_2": "HOUSE_COLOR",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PERSON: '(?P<item_1>.*?)'\\)\\s* <-> \\(HOUSE_COLOR: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PERSON",
+            "item_2": "FOOD",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PERSON: '(?P<item_1>.*?)'\\)\\s* <-> \\(FOOD: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PERSON",
+            "item_2": "PET",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PERSON: '(?P<item_1>.*?)'\\)\\s* <-> \\(PET: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PERSON",
+            "item_2": "DRINK",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PERSON: '(?P<item_1>.*?)'\\)\\s* <-> \\(DRINK: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PERSON",
+            "item_2": "SPORT",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PERSON: '(?P<item_1>.*?)'\\)\\s* <-> \\(SPORT: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_NUMBER",
+            "item_2": "HOUSE_COLOR",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_NUMBER: '(?P<item_1>.*?)'\\)\\s* <-> \\(HOUSE_COLOR: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_NUMBER",
+            "item_2": "FOOD",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_NUMBER: '(?P<item_1>.*?)'\\)\\s* <-> \\(FOOD: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_NUMBER",
+            "item_2": "PET",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_NUMBER: '(?P<item_1>.*?)'\\)\\s* <-> \\(PET: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_NUMBER",
+            "item_2": "DRINK",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_NUMBER: '(?P<item_1>.*?)'\\)\\s* <-> \\(DRINK: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_NUMBER",
+            "item_2": "SPORT",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_NUMBER: '(?P<item_1>.*?)'\\)\\s* <-> \\(SPORT: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_COLOR",
+            "item_2": "FOOD",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_COLOR: '(?P<item_1>.*?)'\\)\\s* <-> \\(FOOD: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_COLOR",
+            "item_2": "PET",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_COLOR: '(?P<item_1>.*?)'\\)\\s* <-> \\(PET: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_COLOR",
+            "item_2": "DRINK",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_COLOR: '(?P<item_1>.*?)'\\)\\s* <-> \\(DRINK: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "HOUSE_COLOR",
+            "item_2": "SPORT",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(HOUSE_COLOR: '(?P<item_1>.*?)'\\)\\s* <-> \\(SPORT: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "FOOD",
+            "item_2": "PET",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(FOOD: '(?P<item_1>.*?)'\\)\\s* <-> \\(PET: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "FOOD",
+            "item_2": "DRINK",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(FOOD: '(?P<item_1>.*?)'\\)\\s* <-> \\(DRINK: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "FOOD",
+            "item_2": "SPORT",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(FOOD: '(?P<item_1>.*?)'\\)\\s* <-> \\(SPORT: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PET",
+            "item_2": "DRINK",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PET: '(?P<item_1>.*?)'\\)\\s* <-> \\(DRINK: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "PET",
+            "item_2": "SPORT",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(PET: '(?P<item_1>.*?)'\\)\\s* <-> \\(SPORT: '(?P<item_2>.*?)'\\)\\)$"
+        },
+        {
+            "item_1": "DRINK",
+            "item_2": "SPORT",
+            "pattern": "^(?P<negation>(?:not)?)\\s*\\(\\(DRINK: '(?P<item_1>.*?)'\\)\\s* <-> \\(SPORT: '(?P<item_2>.*?)'\\)\\)$"
+        }
+    ]
+}

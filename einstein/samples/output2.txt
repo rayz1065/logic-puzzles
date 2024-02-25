@@ -1,0 +1,27 @@
+Found 1 solutions
+-----------------
+# Hints
+- ((HOUSE_NUMBER: '2⃣') <-> (DRINK: '🍷'))
+- not ((PERSON: 'E') <-> (HOUSE_NUMBER: '3⃣'))
+- ((PERSON: 'A') <-> (PET: '🐢'))
+- ((HOUSE_NUMBER: '5⃣') <-> (PET: '🐶'))
+- ((PET: '🐶') <-> (DRINK: '☕'))
+- ((HOUSE_COLOR: '💙') <-> (FOOD: '🍐'))
+- ((HOUSE_NUMBER: '5⃣') <-> (FOOD: '🍎'))
+- ((PERSON: 'D') <-> (PET: '🐈'))
+- ((HOUSE_NUMBER: '4⃣') <-> (PET: '🐠'))
+- ((FOOD: '🍌') <-> (DRINK: '🥛'))
+- ((FOOD: '🍊') <-> (DRINK: '🍷'))
+- ((PERSON: 'D') <-> (HOUSE_COLOR: '💜'))
+- ((PERSON: 'C') <-> (HOUSE_COLOR: '❤'))
+- not ((PERSON: 'C') <-> (PET: '🐤'))
+- not ((HOUSE_NUMBER: '1⃣') <-> (PET: '🐤'))
+- ((HOUSE_COLOR: '💚') <-> (DRINK: '🍷'))
+- ((FOOD: '🍌') <-> (PET: '🐤'))
+- not ((HOUSE_COLOR: '💜') <-> (DRINK: '🍹'))
+# State
+- (PERSON: 'A'), (FOOD: '🍊'), (DRINK: '🍷'), (HOUSE_NUMBER: '2⃣'), (HOUSE_COLOR: '💚'), (PET: '🐢')
+- (PERSON: 'B'), (FOOD: '🍌'), (DRINK: '🥛'), (PET: '🐤'), (HOUSE_NUMBER: '3⃣'), (HOUSE_COLOR: '💛')
+- (PERSON: 'C'), (FOOD: '🍎'), (HOUSE_NUMBER: '5⃣'), (PET: '🐶'), (DRINK: '☕'), (HOUSE_COLOR: '❤')
+- (PERSON: 'D'), (FOOD: '🍍'), (PET: '🐈'), (HOUSE_NUMBER: '1⃣'), (HOUSE_COLOR: '💜'), (DRINK: '🍺')
+- (PERSON: 'E'), (FOOD: '🍐'), (HOUSE_COLOR: '💙'), (PET: '🐠'), (HOUSE_NUMBER: '4⃣'), (DRINK: '🍹')
