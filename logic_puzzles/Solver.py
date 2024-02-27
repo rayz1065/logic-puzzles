@@ -57,6 +57,9 @@ class Solver:
         except SolverTargetReachedException:
             pass
 
+        if self.debug:
+            print(f"Found {len(self.solutions)} solutions")
+
         return self.solutions
 
     def check_timeout(self):
