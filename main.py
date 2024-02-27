@@ -5,6 +5,7 @@ import kakuro.puzzle, kakuro.solver
 import communicating_vessels.puzzle, communicating_vessels.solver
 import einstein.puzzle, einstein.solver
 import magical_maze.puzzle, magical_maze.solver
+import skyscrapers.puzzle, skyscrapers.solver
 
 
 PUZZLES = {
@@ -17,6 +18,10 @@ PUZZLES = {
     "magical_maze": (
         magical_maze.puzzle.MagicalMazePuzzle,
         magical_maze.solver.MagicalMazeSolver,
+    ),
+    "skyscrapers": (
+        skyscrapers.puzzle.SkyscrapersPuzzle,
+        skyscrapers.solver.SkyscrapersSolver,
     ),
 }
 
