@@ -1,6 +1,6 @@
-from logic_puzzles.Puzzle import Puzzle, PuzzleState
-from parser import EinsteinParser
-from hint import EinsteinItem, EinsteinHint
+from logic_puzzles.puzzle import Puzzle, PuzzleState
+from .parser import EinsteinParser
+from .hint import EinsteinItem, EinsteinHint
 
 
 class EinsteinState(PuzzleState):
@@ -12,13 +12,6 @@ class EinsteinState(PuzzleState):
         self.houses = houses
         self.item_location = item_location
         self.conflict_values = conflict_values
-
-    def copy(self):
-        return EinsteinState(
-            [house[:] for house in self.houses],
-            self.item_location.copy(),
-            [conflict.copy() for conflict in self.conflict_values],
-        )
 
 
 class EinsteinPuzzle(Puzzle):

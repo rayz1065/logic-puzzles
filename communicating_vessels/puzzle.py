@@ -1,8 +1,12 @@
-from logic_puzzles.Puzzle import Puzzle, PuzzleState
+from logic_puzzles.puzzle import Puzzle, PuzzleState
 
 
 class CommunicatingVesselsPuzzleState(PuzzleState):
     water: list[list[int]]
+    rows_missing: list[int]
+    cols_missing: list[int]
+    rows_available: list[int]
+    cols_available: list[int]
 
     def __init__(
         self, rows_missing, cols_missing, rows_available, cols_available, water
@@ -12,15 +16,6 @@ class CommunicatingVesselsPuzzleState(PuzzleState):
         self.rows_available = rows_available
         self.cols_available = cols_available
         self.water = water
-
-    def copy(self):
-        return CommunicatingVesselsPuzzleState(
-            self.rows_missing.copy(),
-            self.cols_missing.copy(),
-            self.rows_available.copy(),
-            self.cols_available.copy(),
-            [row.copy() for row in self.water],
-        )
 
 
 class CommunicatingVesselShape:
@@ -106,11 +101,6 @@ class CommunicatingVesselsPuzzle(Puzzle):
             )
 
         return "\n".join(res)
-
-    def copy(self):
-        return CommunicatingVesselsPuzzle(
-            self.grid, self.rows, self.cols, self.state.copy()
-        )
 
     def _can_set_value(self, missing, available, count, value):
         if missing is None:

@@ -1,7 +1,8 @@
+import os
 import sys
 import re
-from hint import EinsteinHint, EinsteinItem
 import json
+from .hint import EinsteinHint, EinsteinItem
 
 
 def remove_variation_selector(text):
@@ -24,13 +25,15 @@ def clean_dictionary(dictionary):
 
     return dictionary
 
+
 def compile_item_relations(item_relations):
     for relation in item_relations:
         relation["pattern"] = re.compile(relation["pattern"])
     return item_relations
 
 
-with open("relations-sample.json") as fin:
+relations_sample_path = os.path.join(os.path.dirname(__file__), "relations-sample.json")
+with open(relations_sample_path, "r") as fin:
     RELATIONS_DATA = json.load(fin)
     SAMPLE_DICTIONARY = clean_dictionary(RELATIONS_DATA["DICTIONARY"])
     SAMPLE_ITEM_RELATIONS = compile_item_relations(RELATIONS_DATA["PARSING_RULES"])
@@ -40,7 +43,9 @@ class EinsteinParser:
     dictionary: dict[str, list[str]]
     item_relations: list[dict[str, str]]
 
-    def __init__(self, dictionary=SAMPLE_DICTIONARY, item_relations=SAMPLE_ITEM_RELATIONS):
+    def __init__(
+        self, dictionary=SAMPLE_DICTIONARY, item_relations=SAMPLE_ITEM_RELATIONS
+    ):
         self.dictionary = dictionary
         self.item_relations = item_relations
 
@@ -55,7 +60,7 @@ class EinsteinParser:
     def parse_hint(self, text):
         res = []
         for relation in self.item_relations:
-            match = relation['pattern'].match(text)
+            match = relation["pattern"].match(text)
             if not match:
                 continue
 

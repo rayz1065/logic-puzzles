@@ -1,6 +1,6 @@
-from puzzle import MagicalMazePuzzle, MAX_VALUE
-from logic_puzzles.Solver import Solver
 import sys
+from logic_puzzles.solver import Solver
+from .puzzle import MagicalMazePuzzle, MAX_VALUE
 
 
 class MagicalMazeSolver(Solver):
@@ -78,19 +78,3 @@ class MagicalMazeSolver(Solver):
         self.puzzle.unset_value(r, c)
 
         return res
-
-
-def main():
-    puzzle = MagicalMazePuzzle.from_file()
-    solver = MagicalMazeSolver(puzzle, debug=False)
-    solutions = solver.solve()
-
-    print(f"Found {len(solutions)} solutions")
-    for state in solutions:
-        puzzle.set_state(state)
-        print("-----------------")
-        print(puzzle)
-
-
-if __name__ == "__main__":
-    main()

@@ -1,4 +1,4 @@
-from logic_puzzles.Puzzle import Puzzle, PuzzleState
+from logic_puzzles.puzzle import Puzzle, PuzzleState
 
 DIRECTIONS = {
     "|": [(1, 0), (-1, 0)],
@@ -22,14 +22,6 @@ class MagicalMazePuzzleState(PuzzleState):
         self.conflict_values = conflict_values
         self.rows_found = rows_found
         self.cols_found = cols_found
-
-    def copy(self):
-        return MagicalMazePuzzleState(
-            [row[:] for row in self.values],
-            [[row[:] for row in grid] for grid in self.conflict_values],
-            [row[:] for row in self.rows_found],
-            [row[:] for row in self.cols_found],
-        )
 
 
 class MagicalMazePuzzle(Puzzle):
@@ -205,6 +197,3 @@ class MagicalMazePuzzle(Puzzle):
         assert value is not None
         self.state.values[r][c] = None
         self._update_conflicts(r, c, value, -1)
-
-    def copy(self):
-        return MagicalMazePuzzle(self.grid, self.initial_values, self.state.copy())

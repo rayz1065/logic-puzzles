@@ -1,8 +1,8 @@
-from logic_puzzles.Solver import Solver
-from puzzle import CommunicatingVesselsPuzzle
+from logic_puzzles.solver import Solver
+from .puzzle import CommunicatingVesselsPuzzle
 
 
-class CommunicatingVesselSolver(Solver):
+class CommunicatingVesselsSolver(Solver):
     def _solve(self, shape_idx=0, height_idx=0):
         if shape_idx == len(self.puzzle.shapes):
             self.store_solution()
@@ -39,19 +39,3 @@ class CommunicatingVesselSolver(Solver):
             self.puzzle.unset_value(shape_idx, r)
 
         return res
-
-
-def main():
-    puzzle = CommunicatingVesselsPuzzle.from_file()
-    solver = CommunicatingVesselSolver(puzzle, debug=False)
-    solutions = solver.solve()
-
-    print(f"Found {len(solutions)} solutions")
-    for state in solutions:
-        puzzle.set_state(state)
-        print("-----------------")
-        print(puzzle)
-
-
-if __name__ == "__main__":
-    main()

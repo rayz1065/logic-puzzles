@@ -1,9 +1,10 @@
 import sys
+import copy
 
 
 class PuzzleState:
     def copy(self):
-        raise NotImplementedError
+        return copy.deepcopy(self)
 
 
 class Puzzle:
@@ -24,6 +25,3 @@ class Puzzle:
         old_state = self.state
         self.state = state
         return old_state
-
-    def copy(self):
-        raise NotImplementedError

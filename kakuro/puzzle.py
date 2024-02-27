@@ -1,5 +1,5 @@
 from itertools import product
-from logic_puzzles.Puzzle import Puzzle, PuzzleState
+from logic_puzzles.puzzle import Puzzle, PuzzleState
 
 
 class KakuroPuzzleState(PuzzleState):
@@ -11,14 +11,6 @@ class KakuroPuzzleState(PuzzleState):
         self.numbers_grid = numbers_grid
         self.conflicts = conflicts
         self.constraints_sum = constraints_sum
-
-    def copy(self):
-        return KakuroPuzzleState(
-            [row.copy() for row in self.numbers_grid],
-            [[x.copy() for x in row] for row in self.conflicts],
-            self.constraints_sum.copy(),
-        )
-
 
 class KakuroCell:
     def __init__(self, is_wall=False, horizontal=None, vertical=None):
@@ -111,9 +103,6 @@ class KakuroPuzzle(Puzzle):
             )
             for state_line, line in zip(self.state.numbers_grid, self.grid)
         )
-
-    def copy(self):
-        return KakuroPuzzle(self.grid, self.state.copy())
 
     def can_set_value(self, r, c, value):
         if self.state.conflicts[r][c][value]:

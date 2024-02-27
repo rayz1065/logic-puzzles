@@ -1,5 +1,5 @@
-from puzzle import KakuroPuzzle
-from logic_puzzles.Solver import Solver
+from .puzzle import KakuroPuzzle
+from logic_puzzles.solver import Solver
 
 
 class KakuroSolver(Solver):
@@ -49,19 +49,3 @@ class KakuroSolver(Solver):
             self.puzzle.unset_value(r, c)
 
         return res
-
-
-def main():
-    puzzle = KakuroPuzzle.from_file()
-    solver = KakuroSolver(puzzle)
-    solutions = solver.solve()
-
-    print(f"Found {len(solutions)} solutions")
-    for state in solutions:
-        puzzle.set_state(state)
-        print("-----------------")
-        print(puzzle)
-
-
-if __name__ == "__main__":
-    main()

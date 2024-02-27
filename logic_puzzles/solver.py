@@ -1,4 +1,4 @@
-from .Puzzle import Puzzle, PuzzleState
+from .puzzle import Puzzle, PuzzleState
 import time
 
 

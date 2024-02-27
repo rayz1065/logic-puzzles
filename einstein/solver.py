@@ -1,6 +1,6 @@
 import sys
-from logic_puzzles.Solver import Solver
-from puzzle import EinsteinPuzzle, EinsteinState
+from logic_puzzles.solver import Solver
+from .puzzle import EinsteinPuzzle, EinsteinState
 
 
 class EinsteinSolver(Solver):
@@ -55,19 +55,3 @@ class EinsteinSolver(Solver):
             self.puzzle.unset_house(item)
 
         return res
-
-
-def main():
-    puzzle = EinsteinPuzzle.from_file()
-    solver = EinsteinSolver(puzzle)
-    solutions = solver.solve()
-
-    print(f"Found {len(solutions)} solutions")
-    for state in solutions:
-        puzzle.set_state(state)
-        print("-----------------")
-        print(puzzle)
-
-
-if __name__ == "__main__":
-    main()
