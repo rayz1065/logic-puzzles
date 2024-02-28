@@ -6,6 +6,7 @@ import communicating_vessels.puzzle, communicating_vessels.solver
 import einstein.puzzle, einstein.solver
 import magical_maze.puzzle, magical_maze.solver
 import skyscrapers.puzzle, skyscrapers.solver
+import kropki.puzzle, kropki.solver
 
 
 PUZZLES = {
@@ -23,6 +24,7 @@ PUZZLES = {
         skyscrapers.puzzle.SkyscrapersPuzzle,
         skyscrapers.solver.SkyscrapersSolver,
     ),
+    "kropki": (kropki.puzzle.KropkiPuzzle, kropki.solver.KropkiSolver),
 }
 
 
@@ -32,6 +34,16 @@ def parse_args():
     parser.add_argument("--input", type=argparse.FileType("r"), default=sys.stdin)
     parser.add_argument("--output", type=argparse.FileType("w"), default=sys.stdout)
     parser.add_argument("--json", action="store_true", help="Output as JSON")
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    parser.add_argument(
+        "--timeout", type=float, default=None, help="Timeout in seconds"
+    )
+    parser.add_argument(
+        "--target_solutions",
+        type=int,
+        default=None,
+        help="Target number of solutions (pass 2 to distinguish 1 vs many)",
+    )
     return parser.parse_args()
 
 
@@ -40,7 +52,12 @@ def main():
     puzzle_type = args.puzzle
     puzzle_cls, solver_cls = PUZZLES[puzzle_type]
     puzzle = puzzle_cls.from_file(args.input)
-    solver = solver_cls(puzzle)
+    solver = solver_cls(
+        puzzle,
+        debug=args.debug,
+        timeout_seconds=args.timeout,
+        target_solutions=args.target_solutions,
+    )
 
     solutions = solver.solve()
 

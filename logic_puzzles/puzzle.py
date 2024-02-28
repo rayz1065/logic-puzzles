@@ -11,12 +11,12 @@ class Puzzle:
     state: PuzzleState
 
     @classmethod
-    def from_string(cls, string):
+    def from_string(cls, string, *args, **kwargs):
         raise NotImplementedError
 
     @classmethod
-    def from_file(cls, file=sys.stdin):
-        return cls.from_string("\n".join(file))
+    def from_file(cls, file=sys.stdin, *args, **kwargs):
+        return cls.from_string("\n".join(file), *args, **kwargs)
 
     def __str__(self):
         raise NotImplementedError
