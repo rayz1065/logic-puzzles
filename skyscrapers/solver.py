@@ -4,6 +4,8 @@ from logic_puzzles.solver import Solver
 class SkyscrapersSolver(Solver):
 
     def _solve_dirty(self, next_r, next_c, dirty):
+        self.check_timeout()
+
         if len(dirty) == 0:
             return self._solve(next_r, next_c)
 
@@ -31,6 +33,8 @@ class SkyscrapersSolver(Solver):
         return res
 
     def _solve(self, r=0, c=0):
+        self.check_timeout()
+
         if c == self.puzzle.grid_size:
             c = 0
             r += 1

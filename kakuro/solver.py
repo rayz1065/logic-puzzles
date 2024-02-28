@@ -6,6 +6,8 @@ class KakuroSolver(Solver):
     puzzle: KakuroPuzzle
 
     def _solve_dirty(self, next_r, next_c, dirty):
+        self.check_timeout()
+
         if len(dirty) == 0:
             return self._solve(next_r, next_c)
 
@@ -30,6 +32,8 @@ class KakuroSolver(Solver):
         return res
 
     def _solve(self, r=0, c=0):
+        self.check_timeout()
+
         if c == len(self.puzzle.grid):
             r, c = r + 1, 0
             if r == len(self.puzzle.grid):

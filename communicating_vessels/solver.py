@@ -4,6 +4,8 @@ from .puzzle import CommunicatingVesselsPuzzle
 
 class CommunicatingVesselsSolver(Solver):
     def _solve(self, shape_idx=0, height_idx=0):
+        self.check_timeout()
+
         if shape_idx == len(self.puzzle.shapes):
             self.store_solution()
             return 1
