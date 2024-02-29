@@ -7,6 +7,7 @@ import einstein.puzzle, einstein.solver
 import magical_maze.puzzle, magical_maze.solver
 import skyscrapers.puzzle, skyscrapers.solver
 import kropki.puzzle, kropki.solver
+import four_winds.puzzle, four_winds.solver
 
 
 PUZZLES = {
@@ -25,6 +26,10 @@ PUZZLES = {
         skyscrapers.solver.SkyscrapersSolver,
     ),
     "kropki": (kropki.puzzle.KropkiPuzzle, kropki.solver.KropkiSolver),
+    "four_winds": (
+        four_winds.puzzle.FourWindsPuzzle,
+        four_winds.solver.FourWindsSolver,
+    ),
 }
 
 
