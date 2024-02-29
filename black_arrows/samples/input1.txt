@@ -1,0 +1,6 @@
+S  SE E  W  SW W
+E  E  N  NW S  S
+S  E  E  NE SE N
+NE E  NE E  N  N
+E  W  NE S  NE NW
+E  E  NE N  W  W

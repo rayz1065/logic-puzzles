@@ -1,0 +1,7 @@
+# N↑, S↓, E→, W←, NE↗, SE↘, SW↙, NW↖
+SE S  SW SE S  S
+E  N  NW S  S  SW
+E  NE NE NE NW W
+SE NW SW W  SW NW
+S  NW SW SW W  NW
+NE NW NW NW NW NW

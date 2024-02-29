@@ -8,6 +8,7 @@ import magical_maze.puzzle, magical_maze.solver
 import skyscrapers.puzzle, skyscrapers.solver
 import kropki.puzzle, kropki.solver
 import four_winds.puzzle, four_winds.solver
+import black_arrows.puzzle, black_arrows.solver
 
 
 PUZZLES = {
@@ -29,6 +30,10 @@ PUZZLES = {
     "four_winds": (
         four_winds.puzzle.FourWindsPuzzle,
         four_winds.solver.FourWindsSolver,
+    ),
+    "black_arrows": (
+        black_arrows.puzzle.BlackArrowsPuzzle,
+        black_arrows.solver.BlackArrowsSolver,
     ),
 }
 
