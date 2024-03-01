@@ -1,5 +1,4 @@
 from logic_puzzles.solver import Solver
-from .puzzle import ORTHOGONAL_DIRECTIONS, DIAGONAL_DIRECTIONS
 
 
 class BattleshipsSolver(Solver):
