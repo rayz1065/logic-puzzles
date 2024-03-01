@@ -6,7 +6,7 @@ DIRECTIONS = {
     "^": [(1, 0)],
     ">": [(0, -1)],
     "<": [(0, 1)],
-    "O": [],
+    "o": [],
     "+": [(-1, 0), (0, -1), (0, 1), (1, 0)],
 }
 ORTHOGONAL_DIRECTIONS = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -46,7 +46,7 @@ class BattleshipsPuzzle(Puzzle):
             boats[boat] += 1
         col_counts = [int(x) for x in lines[1]]
         row_counts = [int(x[0]) for x in lines[2:]]
-        initial_grid = [[x for x in line[1:]] for line in lines[2:]]
+        initial_grid = [[x.lower() for x in line[1:]] for line in lines[2:]]
 
         return BattleshipsPuzzle(boats, col_counts, row_counts, initial_grid)
 
@@ -68,8 +68,16 @@ class BattleshipsPuzzle(Puzzle):
             self.state = state
 
     def __str__(self):
+        def stringify_cell(r, c):
+            if not self.state.grid[r][c]:
+                return "."
+            if self.initial_grid[r][c] in DIRECTIONS:
+                return self.initial_grid[r][c]
+            return "O"
+
         return "\n".join(
-            " ".join("O" if x else "." for x in row) for row in self.state.grid
+            " ".join(stringify_cell(r, c) for c in range(self.cols))
+            for r in range(self.rows)
         )
 
     def initialize_state(self):
@@ -77,7 +85,7 @@ class BattleshipsPuzzle(Puzzle):
             boat_type = self.initial_grid[r][c]
             if boat_type == ".":
                 continue
-            if boat_type == "X":
+            if boat_type == "x":
                 if self.state.grid[r][c] is None:
                     self.set_value(r, c, 0)
                 continue
@@ -168,6 +176,34 @@ class BattleshipsPuzzle(Puzzle):
 
             if current_acc > target_acc:
                 return False
+        else:
+            # check that we are not locking a + boat to only one direction
+            for dr, dc in ORTHOGONAL_DIRECTIONS:
+                new_r, new_c = r + dr, c + dc
+                if (
+                    not self.in_range(new_r, new_c)
+                    or self.initial_grid[new_r][new_c] != "+"
+                ):
+                    continue
+
+                boat = self.get_boat(new_r, new_c)
+                if (r + 2 * dr, c + 2 * dc) in boat:
+                    # state: ?+> with ? being the current cell
+                    # this cell must also be 1
+                    return False
+
+                dr, dc = dc, dr
+                for distance in (-1, 1):
+                    diag_r, diag_c = new_r + dr * distance, new_c + dc * distance
+                    if (
+                        not self.in_range(diag_r, diag_c)
+                        or self.state.grid[diag_r][diag_c] == 0
+                    ):
+                        # state: ?+ with ? being the current cell
+                        #         X
+                        # the diagonal directions cannot host the boat,
+                        # therefore this cell must be 1
+                        return False
 
         new_row_cells_by_value = [x[r] for x in self.state.row_cells_by_value]
         new_col_cells_by_value = [x[c] for x in self.state.col_cells_by_value]
