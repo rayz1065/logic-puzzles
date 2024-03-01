@@ -9,6 +9,7 @@ import skyscrapers.puzzle, skyscrapers.solver
 import kropki.puzzle, kropki.solver
 import four_winds.puzzle, four_winds.solver
 import black_arrows.puzzle, black_arrows.solver
+import battleships.puzzle, battleships.solver
 
 
 PUZZLES = {
@@ -34,6 +35,10 @@ PUZZLES = {
     "black_arrows": (
         black_arrows.puzzle.BlackArrowsPuzzle,
         black_arrows.solver.BlackArrowsSolver,
+    ),
+    "battleships": (
+        battleships.puzzle.BattleshipsPuzzle,
+        battleships.solver.BattleshipsSolver,
     ),
 }
 
