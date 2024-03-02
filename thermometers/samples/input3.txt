@@ -1,0 +1,15 @@
+# F-7
+# | |
+# L-J
+
+  7 5 5 3 6 3 3 3 9 5
+3 F 7 F 7 < - O O O ^
+3 | v O | F > < J | |
+5 L - O v O O - > L J
+7 F - - - - - O O > ^
+7 L - - > F - - O O J
+5 O F O ^ v ^ < O F 7
+7 | L - J F J < - J |
+6 L > < O L - O O - J
+2 O - - > O > < - O O
+4 O > O - - - - > < J

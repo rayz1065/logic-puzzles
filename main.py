@@ -10,6 +10,7 @@ import kropki.puzzle, kropki.solver
 import four_winds.puzzle, four_winds.solver
 import black_arrows.puzzle, black_arrows.solver
 import battleships.puzzle, battleships.solver
+import thermometers.puzzle, thermometers.solver
 
 
 PUZZLES = {
@@ -40,6 +41,10 @@ PUZZLES = {
         battleships.puzzle.BattleshipsPuzzle,
         battleships.solver.BattleshipsSolver,
     ),
+    "thermometers": (
+        thermometers.puzzle.ThermometersPuzzle,
+        thermometers.solver.ThermometersSolver,
+    ),
 }
 
 
@@ -59,6 +64,11 @@ def parse_args():
         default=None,
         help="Target number of solutions (pass 2 to distinguish 1 vs many)",
     )
+    parser.add_argument(
+        "--randomize_branching",
+        action="store_true",
+        help="Randomize branching order",
+    )
     return parser.parse_args()
 
 
@@ -72,6 +82,7 @@ def main():
         debug=args.debug,
         timeout_seconds=args.timeout,
         target_solutions=args.target_solutions,
+        randomize_branching=args.randomize_branching,
     )
 
     solutions = solver.solve()

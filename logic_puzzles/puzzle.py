@@ -21,7 +21,16 @@ class Puzzle:
     def __str__(self):
         raise NotImplementedError
 
+    def initialize_state(self):
+        raise NotImplementedError
+
     def set_state(self, state):
         old_state = self.state
         self.state = state
+        if state is None:
+            self.initialize_state()
+
         return old_state
+
+    def reset_state(self):
+        return self.set_state(None)
