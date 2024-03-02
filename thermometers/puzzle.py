@@ -3,13 +3,6 @@ from logic_puzzles.grid_utils import GridUtils, ARROWS, ORTHOGONAL_DIRECTIONS, B
 from math import comb
 
 
-THERMOMETER_DIRECTIONS = BENDS.copy()
-THERMOMETER_DIRECTIONS.update(
-    {arrow: [(-dr, -dc), (dr, dc)] for arrow, (dr, dc) in ARROWS.items()}
-)
-THERMOMETER_DIRECTIONS["o"] = []
-
-
 class ThermometersPuzzleState(PuzzleState):
     grid: list[list[int | None]]
     found_by_col: tuple[list[int], list[int]]
