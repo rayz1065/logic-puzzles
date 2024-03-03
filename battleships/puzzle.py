@@ -1,9 +1,7 @@
-from itertools import product
 from math import comb
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import (
     ORTHOGONAL_DIRECTIONS,
-    DIAGONAL_DIRECTIONS,
     ALL_DIRECTIONS,
     ARROWS,
     GridUtils,
@@ -106,7 +104,7 @@ class BattleshipsPuzzle(Puzzle):
         boat_available_locations_count = [0] * max(
             self.grid_utils.rows, self.grid_utils.cols
         )
-        for r, c in product(range(self.grid_utils.rows), range(self.grid_utils.cols)):
+        for r, c in self.grid_utils.iter_grid():
             for boat_size in range(1, self.max_boat_size + 1):
                 for dr, dc in [(0, 1), (1, 0)]:
                     end_r, end_c = r + (boat_size - 1) * dr, c + (boat_size - 1) * dc
@@ -128,7 +126,7 @@ class BattleshipsPuzzle(Puzzle):
             boat_available_locations_count=boat_available_locations_count,
         )
 
-        for r, c in product(range(self.grid_utils.rows), range(self.grid_utils.cols)):
+        for r, c in self.grid_utils.iter_grid():
             cell_type = self.initial_grid[r][c]
             if cell_type == ".":
                 continue
@@ -157,6 +155,9 @@ class BattleshipsPuzzle(Puzzle):
     @property
     def max_boat_size(self):
         return len(self.boats) - 1
+
+    def get_valid_values(self, r, c):
+        return [value for value in (0, 1) if self.can_set(r, c, value)]
 
     def can_set(self, r, c, value):
         if value == 1:

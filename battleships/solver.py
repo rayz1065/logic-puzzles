@@ -1,4 +1,3 @@
-from itertools import product
 from logic_puzzles.solver import Solver
 
 
@@ -21,7 +20,7 @@ class BattleshipsSolver(Solver):
         while len(dirty) > 0:
             r, c = dirty.pop()
             if self.state.grid[r][c] is None:
-                valid_values = [x for x in (0, 1) if self.puzzle.can_set(r, c, x)]
+                valid_values = self.puzzle.get_valid_values(r, c)
                 if len(valid_values) <= 1:
                     break
         else:
@@ -74,10 +73,7 @@ class BattleshipsSolver(Solver):
             return 1
 
         res = 0
-        for value in self.branching_order((0, 1)):
-            if not self.puzzle.can_set(r, c, value):
-                continue
-
+        for value in self.branching_order(self.puzzle.get_valid_values(r, c)):
             dirty = self._compute_dirty(r, c)
             self.puzzle.set_value(r, c, value)
             res += self._solve_dirty(dirty)
