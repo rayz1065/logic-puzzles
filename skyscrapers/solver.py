@@ -12,11 +12,11 @@ class SkyscrapersSolver(SimpleBranchingSolver):
         value = self.state.grid[r][c]
 
         # check all the cells next to this cell
-        for new_r in range(self.puzzle.grid_size):
+        for new_r in range(self.puzzle.grid_utils.rows):
             if self.state.grid[new_r][c] is None:
                 dirty.add((new_r, c))
 
-        for new_c in range(self.puzzle.grid_size):
+        for new_c in range(self.puzzle.grid_utils.rows):
             if self.state.grid[r][new_c] is None:
                 dirty.add((r, new_c))
 

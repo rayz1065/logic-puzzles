@@ -1,3 +1,4 @@
+from functools import cache
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils
 
@@ -16,24 +17,34 @@ class SkyscrapersPuzzleState(PuzzleState):
 class SkyscrapersPuzzle(Puzzle):
     """http://www.puzzlefountain.com/giochi.php?tipopuzzle=Grattacieli"""
 
-    rows: tuple[list[int], list[int]]
-    cols: tuple[list[int], list[int]]
+    row_counts: tuple[list[int], list[int]]
+    col_counts: tuple[list[int], list[int]]
+    initial_grid: list[list[str]]
+    state: SkyscrapersPuzzleState
+    grid_utils: GridUtils
 
     @classmethod
     def from_string(cls, string):
         lines = [line.strip() for line in string.split("\n")]
-        lines = [
-            [int(x) if x not in ["0", "."] else None for x in line.split()]
-            for line in lines
-            if line and not line.startswith("#")
-        ]
+        lines = [line.split() for line in lines if line and not line.startswith("#")]
 
-        return cls(tuple(lines[:2]), tuple(lines[2:]))
+        def parse_counts(counts):
+            return [int(x) if x != "." and x != "0" else None for x in counts]
 
-    def __init__(self, rows, cols, state=None):
-        self.rows = rows
-        self.cols = cols
-        self.grid_utils = GridUtils(len(self.rows[0]), len(self.rows[0]))
+        col_counts = (parse_counts(lines[0]), parse_counts(lines[-1]))
+        row_counts = (
+            parse_counts([x[0] for x in lines[1:-1]]),
+            parse_counts([x[-1] for x in lines[1:-1]]),
+        )
+        initial_grid = [x[1:-1] for x in lines[1:-1]]
+
+        return cls(initial_grid, row_counts, col_counts)
+
+    def __init__(self, initial_grid, row_counts, col_counts, state=None):
+        self.initial_grid = initial_grid
+        self.row_counts = row_counts
+        self.col_counts = col_counts
+        self.grid_utils = GridUtils(len(self.row_counts[0]), len(self.row_counts[0]))
         self.state = state
 
         if state is None:
@@ -51,27 +62,31 @@ class SkyscrapersPuzzle(Puzzle):
             ],
         )
 
+        for r, c in self.grid_utils.iter_grid():
+            if self.initial_grid[r][c] != ".":
+                value = int(self.initial_grid[r][c]) - 1
+                self.set_value((r, c), value)
+
     def __str__(self):
         def stringify_hint(hint):
             return "." if hint is None else str(hint)
 
+        def stringify_cell(cell):
+            return "." if cell is None else str(cell + 1)
+
         res = []
-        res.append("  " + " ".join(stringify_hint(x) for x in self.cols[0]))
+        res.append("  " + " ".join(map(stringify_hint, self.col_counts[0])))
         for r, row in enumerate(self.state.grid):
             res.append(
-                stringify_hint(self.rows[0][r])
+                stringify_hint(self.row_counts[0][r])
                 + " "
-                + " ".join("." if x is None else str(x + 1) for x in row)
+                + " ".join(map(stringify_cell, row))
                 + " "
-                + stringify_hint(self.rows[1][r])
+                + stringify_hint(self.row_counts[1][r])
             )
-        res.append("  " + " ".join(stringify_hint(x) for x in self.cols[1]))
+        res.append("  " + " ".join(map(stringify_hint, self.col_counts[1])))
 
         return "\n".join(res)
-
-    @property
-    def grid_size(self):
-        return len(self.rows[0])
 
     def _update_conflicts(self, r, c, value, delta):
         self.state.found_by_row[r][value] += delta
@@ -110,10 +125,10 @@ class SkyscrapersPuzzle(Puzzle):
         self.set_value(location, value)
 
         VISION_BOUNDS_CHECKS = [
-            (self.rows[0][r], (r, 0, 0, 1)),
-            (self.rows[1][r], (r, self.grid_utils.rows - 1, 0, -1)),
-            (self.cols[0][c], (0, c, 1, 0)),
-            (self.cols[1][c], (self.grid_utils.rows - 1, c, -1, 0)),
+            (self.row_counts[0][r], (r, 0, 0, 1)),
+            (self.row_counts[1][r], (r, self.grid_utils.rows - 1, 0, -1)),
+            (self.col_counts[0][c], (0, c, 1, 0)),
+            (self.col_counts[1][c], (self.grid_utils.rows - 1, c, -1, 0)),
         ]
 
         res = True
@@ -137,6 +152,7 @@ class SkyscrapersPuzzle(Puzzle):
 
         return lower, upper
 
+    @cache
     def _compute_vision_bound(self, cells, compute_lower):
         """Computes the specified bound for the vision in the ray"""
         current = -1
@@ -164,9 +180,10 @@ class SkyscrapersPuzzle(Puzzle):
                         break
             else:
                 # we try to place the first building higher than current
+                # we update current in a conservative way since this may be a suboptimal choice
                 for value in range(current + 1, self.grid_utils.rows):
                     if value not in cells:
-                        current = value
+                        current = current + 1
                         vision += 1
                         break
 
