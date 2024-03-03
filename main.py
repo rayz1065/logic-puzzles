@@ -11,6 +11,7 @@ import four_winds.puzzle, four_winds.solver
 import black_arrows.puzzle, black_arrows.solver
 import battleships.puzzle, battleships.solver
 import thermometers.puzzle, thermometers.solver
+import tents.puzzle, tents.solver
 
 
 PUZZLES = {
@@ -45,6 +46,7 @@ PUZZLES = {
         thermometers.puzzle.ThermometersPuzzle,
         thermometers.solver.ThermometersSolver,
     ),
+    "tents": (tents.puzzle.TentsPuzzle, tents.solver.TentsSolver),
 }
 
 
