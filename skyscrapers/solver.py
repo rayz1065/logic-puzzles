@@ -1,57 +1,30 @@
-from logic_puzzles.solver import Solver
+from logic_puzzles.solver import SimpleBranchingSolver
 
 
-class SkyscrapersSolver(Solver):
+class SkyscrapersSolver(SimpleBranchingSolver):
+    def get_branching_score(self, location):
+        return 1
 
-    def _solve_dirty(self, next_r, next_c, dirty):
-        self.check_timeout()
+    def _compute_dirty(self, location):
+        dirty = set()
 
-        if len(dirty) == 0:
-            return self._solve(next_r, next_c)
+        r, c = location
+        value = self.state.grid[r][c]
 
-        r, c = dirty.pop()
-        if self.state.grid[r][c] is not None:
-            return self._solve_dirty(r, c + 1, dirty)
+        # check all the cells next to this cell
+        for new_r in range(self.puzzle.grid_size):
+            if self.state.grid[new_r][c] is None:
+                dirty.add((new_r, c))
 
-        valid_values = [
-            value
-            for value in range(self.puzzle.grid_size)
-            if self.puzzle.is_valid(r, c, value)
-        ]
+        for new_c in range(self.puzzle.grid_size):
+            if self.state.grid[r][new_c] is None:
+                dirty.add((r, new_c))
 
-        if len(valid_values) == 0:
-            return 0
+        return dirty
 
-        if len(valid_values) > 1:
-            return self._solve_dirty(next_r, next_c, dirty)
+    def is_location_set(self, location):
+        r, c = location
+        return self.state.grid[r][c] is not None
 
-        value = valid_values[0]
-        dirty.update(self.puzzle.set_value(r, c, value))
-        res = self._solve_dirty(next_r, next_c, dirty)
-        self.puzzle.unset_value(r, c)
-
-        return res
-
-    def _solve(self, r=0, c=0):
-        self.check_timeout()
-
-        if c == self.puzzle.grid_size:
-            c = 0
-            r += 1
-            if r == self.puzzle.grid_size:
-                self.store_solution()
-                return 1
-
-        if self.state.grid[r][c] is not None:
-            return self._solve(r, c + 1)
-
-        res = 0
-        for value in range(self.puzzle.grid_size):
-            if not self.puzzle.is_valid(r, c, value):
-                continue
-
-            dirty = self.puzzle.set_value(r, c, value)
-            res += self._solve_dirty(r, c + 1, dirty)
-            self.puzzle.unset_value(r, c)
-
-        return res
+    def iter_locations(self):
+        yield from self.puzzle.grid_utils.iter_grid()

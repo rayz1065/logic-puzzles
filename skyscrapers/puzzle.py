@@ -1,13 +1,16 @@
 from logic_puzzles.puzzle import Puzzle, PuzzleState
+from logic_puzzles.grid_utils import GridUtils
 
 
 class SkyscrapersPuzzleState(PuzzleState):
     grid: list[list[int]]
-    conflict_values: list[list[list[int]]]
+    found_by_row: list[list[int]]  # row -> value -> frequency
+    found_by_col: list[list[int]]  # col -> value -> frequency
 
-    def __init__(self, grid, conflict_values):
+    def __init__(self, grid, found_by_row, found_by_col):
         self.grid = grid
-        self.conflict_values = conflict_values
+        self.found_by_row = found_by_row
+        self.found_by_col = found_by_col
 
 
 class SkyscrapersPuzzle(Puzzle):
@@ -30,16 +33,23 @@ class SkyscrapersPuzzle(Puzzle):
     def __init__(self, rows, cols, state=None):
         self.rows = rows
         self.cols = cols
+        self.grid_utils = GridUtils(len(self.rows[0]), len(self.rows[0]))
+        self.state = state
 
         if state is None:
-            grid = [[None] * self.grid_size for _ in range(self.grid_size)]
-            conflict_values = [
-                [[0] * self.grid_size for _ in range(self.grid_size)]
-                for _ in range(self.grid_size)
-            ]
-            state = SkyscrapersPuzzleState(grid, conflict_values)
+            self.initialize_state()
 
-        self.state = state
+    def initialize_state(self):
+        grid = [[None] * self.grid_utils.rows for _ in range(self.grid_utils.rows)]
+        self.state = SkyscrapersPuzzleState(
+            grid=grid,
+            found_by_row=[
+                ([0] * self.grid_utils.rows) for _ in range(self.grid_utils.rows)
+            ],
+            found_by_col=[
+                ([0] * self.grid_utils.rows) for _ in range(self.grid_utils.rows)
+            ],
+        )
 
     def __str__(self):
         def stringify_hint(hint):
@@ -64,51 +74,46 @@ class SkyscrapersPuzzle(Puzzle):
         return len(self.rows[0])
 
     def _update_conflicts(self, r, c, value, delta):
-        dirty = set()
+        self.state.found_by_row[r][value] += delta
+        self.state.found_by_col[c][value] += delta
 
-        for other_r in range(self.grid_size):
-            self.state.conflict_values[other_r][c][value] += delta
-            if (
-                self.state.grid[other_r][c] is None
-                and self.state.conflict_values[other_r][c][value] == delta
-            ):
-                dirty.add((other_r, c))
-
-        for other_c in range(self.grid_size):
-            self.state.conflict_values[r][other_c][value] += delta
-            if (
-                self.state.grid[r][other_c] is None
-                and self.state.conflict_values[r][other_c][value] == delta
-            ):
-                dirty.add((r, other_c))
-
-        return dirty
-
-    def set_value(self, r, c, value):
+    def set_value(self, location, value):
+        r, c = location
         assert self.state.grid[r][c] is None
         self.state.grid[r][c] = value
-        return self._update_conflicts(r, c, value, 1)
+        self._update_conflicts(r, c, value, 1)
 
-    def unset_value(self, r, c):
+    def unset_value(self, location):
+        r, c = location
         value = self.state.grid[r][c]
         assert value is not None
         self.state.grid[r][c] = None
         self._update_conflicts(r, c, value, -1)
 
-    def is_valid(self, r, c, value):
-        if self.state.conflict_values[r][c][value]:
+    def get_valid_values(self, location):
+        return [x for x in range(self.grid_utils.rows) if self.can_set(location, x)]
+
+    def can_set(self, location, value):
+        r, c = location
+        if (
+            self.state.found_by_row[r][value] > 0
+            or self.state.found_by_col[c][value] > 0
+        ):
             return False
 
         def cells_in_ray(r, c, dr, dc):
-            return [self.state.grid[r_][c_] for r_, c_ in self.ray_iter(r, c, dr, dc)]
+            return [
+                self.state.grid[new_r][new_c]
+                for new_r, new_c in self.grid_utils.ray_iter(r, c, dr, dc)
+            ]
 
-        self.set_value(r, c, value)
+        self.set_value(location, value)
 
         VISION_BOUNDS_CHECKS = [
             (self.rows[0][r], (r, 0, 0, 1)),
-            (self.rows[1][r], (r, self.grid_size - 1, 0, -1)),
+            (self.rows[1][r], (r, self.grid_utils.rows - 1, 0, -1)),
             (self.cols[0][c], (0, c, 1, 0)),
-            (self.cols[1][c], (self.grid_size - 1, c, -1, 0)),
+            (self.cols[1][c], (self.grid_utils.rows - 1, c, -1, 0)),
         ]
 
         res = True
@@ -122,18 +127,9 @@ class SkyscrapersPuzzle(Puzzle):
                 res = False
                 break
 
-        self.unset_value(r, c)
+        self.unset_value(location)
 
         return res
-
-    def in_range(self, r, c):
-        return 0 <= r < self.grid_size and 0 <= c < self.grid_size
-
-    def ray_iter(self, r, c, dr, dc):
-        while self.in_range(r, c):
-            yield r, c
-            r += dr
-            c += dc
 
     def compute_vision_bounds(self, cells):
         lower = self._compute_vision_bound(cells, True)
@@ -152,7 +148,7 @@ class SkyscrapersPuzzle(Puzzle):
                     current = cell
                     vision += 1
             elif compute_lower:
-                if (self.grid_size - 1) not in cells:
+                if (self.grid_utils.rows - 1) not in cells:
                     # we can place the highest building here and compute
                     # the lower bound precisely
                     return vision + 1
@@ -161,14 +157,14 @@ class SkyscrapersPuzzle(Puzzle):
                 # we are looking for the tallest building that can be placed here but
                 # we don't update the vision since it might be a suboptimal choice
                 # since we are computing a lower bound this is fine
-                for value in reversed(range(current + 1, self.grid_size)):
+                for value in reversed(range(current + 1, self.grid_utils.rows)):
                     if value not in cells:
                         current = value
                         # NOTE: do not update vision here
                         break
             else:
                 # we try to place the first building higher than current
-                for value in range(current + 1, self.grid_size):
+                for value in range(current + 1, self.grid_utils.rows):
                     if value not in cells:
                         current = value
                         vision += 1
