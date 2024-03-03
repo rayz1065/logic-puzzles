@@ -44,6 +44,12 @@ class Solver:
     def state(self):
         return self.puzzle.state
 
+    def is_location_set(self, location):
+        raise NotImplementedError
+
+    def iter_locations(self):
+        raise NotImplementedError
+
     def store_solution(self):
         self.solutions.append(self.puzzle.state.copy())
         if self.debug:
@@ -92,3 +98,89 @@ class Solver:
     def set_puzzle(self, puzzle):
         self.puzzle = puzzle
         self.clear_solutions()
+
+
+class SimpleBranchingSolver(Solver):
+    def get_branching_score(self, location):
+        raise NotImplementedError
+
+    def _compute_dirty(self, location):
+        raise NotImplementedError
+
+    def _update_all_dirty(self, dirty):
+        while len(dirty) > 0:
+            location = dirty.pop()
+            if self.is_location_set(location):
+                continue
+
+            valid_values = self.puzzle.get_valid_values(location)
+            if len(valid_values) <= 1:
+                break
+        else:
+            # failed to find an unset location that doesn't require branching
+            return set()
+
+        if len(valid_values) == 0:
+            # puzzle state is invalid
+            return None
+
+        value = valid_values[0]
+        self.puzzle.set_value(location, value)
+        dirty.update(self._compute_dirty(location))
+        updated = self._update_all_dirty(dirty)
+
+        if updated is None:
+            self.puzzle.unset_value(location)
+            return None
+
+        updated.add(location)
+        return updated
+
+    def _solve_dirty(self, dirty):
+        self.check_timeout()
+
+        updated = self._update_all_dirty(dirty)
+
+        if updated is None:
+            return 0
+
+        res = self._branching_solve()
+        for location in updated:
+            self.puzzle.unset_value(location)
+
+        return res
+
+    def _debug_branching(self, location):
+        print(f"Branching at {location}")
+
+    def _branching_solve(self):
+        self.check_timeout()
+
+        best_score, location = None, None
+        for new_location in self.iter_locations():
+            if self.is_location_set(new_location):
+                continue
+
+            score = self.get_branching_score(new_location)
+            if best_score is None or score > best_score:
+                best_score, location = score, new_location
+
+        if best_score is None:
+            self.store_solution()
+            return 1
+
+        if self.debug:
+            self._debug_branching(location)
+
+        res = 0
+        for value in self.branching_order(self.puzzle.get_valid_values(location)):
+            self.puzzle.set_value(location, value)
+            dirty = self._compute_dirty(location)
+            res += self._solve_dirty(dirty)
+            self.puzzle.unset_value(location)
+
+        return res
+
+    def _solve(self):
+        dirty = set(self.iter_locations())
+        return self._solve_dirty(dirty)

@@ -34,3 +34,15 @@ class Puzzle:
 
     def reset_state(self):
         return self.set_state(None)
+
+    def get_valid_values(self, location):
+        raise NotImplementedError
+
+    def can_set(self, location, value):
+        raise NotImplementedError
+
+    def set_value(self, location, value):
+        raise NotImplementedError
+
+    def unset_value(self, location):
+        raise NotImplementedError
