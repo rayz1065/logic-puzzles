@@ -147,8 +147,8 @@ class SkyscrapersPuzzle(Puzzle):
         return res
 
     def compute_vision_bounds(self, cells):
-        lower = self._compute_vision_bound(cells, True)
-        upper = self._compute_vision_bound(cells, False)
+        lower = self._compute_vision_bound(tuple(cells), True)
+        upper = self._compute_vision_bound(tuple(cells), False)
 
         return lower, upper
 
