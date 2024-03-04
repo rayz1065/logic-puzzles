@@ -12,6 +12,7 @@ import black_arrows.puzzle, black_arrows.solver
 import battleships.puzzle, battleships.solver
 import thermometers.puzzle, thermometers.solver
 import tents.puzzle, tents.solver
+import light_up.puzzle, light_up.solver
 
 
 PUZZLES = {
@@ -47,6 +48,7 @@ PUZZLES = {
         thermometers.solver.ThermometersSolver,
     ),
     "tents": (tents.puzzle.TentsPuzzle, tents.solver.TentsSolver),
+    "light_up": (light_up.puzzle.LightUpPuzzle, light_up.solver.LightUpSolver),
 }
 
 
