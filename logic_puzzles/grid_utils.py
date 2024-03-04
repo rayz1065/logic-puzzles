@@ -43,7 +43,7 @@ class GridUtils:
 
     def ray_iter(self, r, c, dr, dc, max_distance=None):
         max_distance = max_distance or self.rows + self.cols
-        for distance in range(max_distance + 1):
+        for distance in range(max_distance):
             new_r, new_c = r + dr * distance, c + dc * distance
             if not self.in_range(new_r, new_c):
                 break
@@ -51,7 +51,7 @@ class GridUtils:
 
     def directions_iter(self, r, c, directions, max_distance=None):
         for dr, dc in directions:
-            yield from self.ray_iter(r, c, dr, dc, max_distance)
+            yield from self.ray_iter(r + dr, c + dc, dr, dc, max_distance)
 
     def orthogonal_iter(self, r, c, max_distance=None):
         yield from self.directions_iter(r, c, ORTHOGONAL_DIRECTIONS, max_distance)

@@ -1,6 +1,7 @@
 from .puzzle import Puzzle, PuzzleState
 import time
 import random
+from abc import ABC, abstractmethod
 
 
 class SolverException(Exception):
@@ -15,7 +16,7 @@ class SolverTargetReachedException(SolverException):
     pass
 
 
-class Solver:
+class Solver(ABC):
     debug: bool
     puzzle: Puzzle
     target_solutions: int
@@ -44,10 +45,8 @@ class Solver:
     def state(self):
         return self.puzzle.state
 
-    def is_location_set(self, location):
-        raise NotImplementedError
-
-    def iter_locations(self):
+    @abstractmethod
+    def _solve(self):
         raise NotImplementedError
 
     def store_solution(self):
@@ -58,9 +57,6 @@ class Solver:
         if self.target_solutions is not None:
             if len(self.solutions) >= self.target_solutions:
                 raise SolverTargetReachedException
-
-    def _solve(self):
-        raise NotImplementedError
 
     def solve(self):
         if self.debug:
@@ -100,10 +96,20 @@ class Solver:
         self.clear_solutions()
 
 
-class SimpleBranchingSolver(Solver):
+class SimpleBranchingSolver(Solver, ABC):
+    @abstractmethod
+    def is_location_set(self, location):
+        raise NotImplementedError
+
+    @abstractmethod
+    def iter_locations(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_branching_score(self, location):
         raise NotImplementedError
 
+    @abstractmethod
     def _compute_dirty(self, location):
         raise NotImplementedError
 
