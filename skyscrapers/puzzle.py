@@ -1,6 +1,7 @@
 from functools import cache
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils
+from .vision_computer import compute_vision_lower_bound, compute_vision_upper_bound
 
 
 class SkyscrapersPuzzleState(PuzzleState):
@@ -147,44 +148,7 @@ class SkyscrapersPuzzle(Puzzle):
         return res
 
     def compute_vision_bounds(self, cells):
-        lower = self._compute_vision_bound(tuple(cells), True)
-        upper = self._compute_vision_bound(tuple(cells), False)
+        lower = compute_vision_lower_bound(cells)
+        upper = compute_vision_upper_bound(cells)
 
         return lower, upper
-
-    @cache
-    def _compute_vision_bound(self, cells, compute_lower):
-        """Computes the specified bound for the vision in the ray"""
-        current = -1
-        vision = 0
-
-        for cell in cells:
-            if cell is not None:
-                if cell > current:
-                    current = cell
-                    vision += 1
-            elif compute_lower:
-                if (self.grid_utils.rows - 1) not in cells:
-                    # we can place the highest building here and compute
-                    # the lower bound precisely
-                    return vision + 1
-
-                # this looks wrong but it's a valid heuristic:
-                # we are looking for the tallest building that can be placed here but
-                # we don't update the vision since it might be a suboptimal choice
-                # since we are computing a lower bound this is fine
-                for value in reversed(range(current + 1, self.grid_utils.rows)):
-                    if value not in cells:
-                        current = value
-                        # NOTE: do not update vision here
-                        break
-            else:
-                # we try to place the first building higher than current
-                # we update current in a conservative way since this may be a suboptimal choice
-                for value in range(current + 1, self.grid_utils.rows):
-                    if value not in cells:
-                        current = current + 1
-                        vision += 1
-                        break
-
-        return vision
