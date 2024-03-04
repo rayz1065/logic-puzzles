@@ -18,7 +18,7 @@ def _compute_vision_bound(
             other_buildings, available_heights, compute_upper, new_max_height
         )
 
-    res = 0
+    res = None
     for height, is_available in enumerate(available_heights):
         if not is_available:
             continue
@@ -30,7 +30,10 @@ def _compute_vision_bound(
             other_buildings, tuple(new_available), compute_upper, new_max_height
         )
 
-        res = max(res, new_res) if compute_upper else min(res, new_res)
+        if res is None:
+            res = new_res
+        else:
+            res = max(res, new_res) if compute_upper else min(res, new_res)
 
     return res
 
