@@ -1,54 +1,38 @@
-from logic_puzzles.solver import Solver
+from itertools import product
+from logic_puzzles.solver import SimpleBranchingSolver
+from logic_puzzles.grid_utils import ORTHOGONAL_DIRECTIONS
 
 
-class KropkiSolver(Solver):
-    def _solve_dirty(self, next_r, next_c, dirty):
-        self.check_timeout()
+class KropkiSolver(SimpleBranchingSolver):
+    def is_location_set(self, location):
+        r, c = location
+        return self.state.grid[r][c] is not None
 
-        if len(dirty) == 0:
-            return self._solve(next_r, next_c)
+    def iter_locations(self):
+        yield from self.puzzle.grid_utils.iter_grid()
 
-        r, c = dirty.pop()
-        if self.state.grid[r][c] is not None:
-            return self._solve_dirty(next_r, next_c, dirty)
+    def get_branching_score(self, location):
+        return -len(self.puzzle.get_valid_values(location))
 
-        valid_values = [
-            value
-            for value in range(1, self.puzzle.grid_size + 1)
-            if self.puzzle.is_valid(r, c, value)
-        ]
+    def _compute_dirty(self, location):
+        r, c = location
 
-        if len(valid_values) == 0:
-            return 0
+        dirty = set()
 
-        if len(valid_values) > 1:
-            return self._solve_dirty(next_r, next_c, dirty)
+        for new_r, new_c in self.puzzle.grid_utils.orthogonal_iter(r, c):
+            if self.state.grid[new_r][new_c] is None:
+                dirty.add((new_r, new_c))
 
-        value = valid_values[0]
-        dirty.update(self.puzzle.set_value(r, c, value))
-        res = self._solve_dirty(next_r, next_c, dirty)
-        self.puzzle.unset_value(r, c)
-        return res
+        if not self.puzzle.sudoku_mode:
+            return dirty
 
-    def _solve(self, r=0, c=0):
-        self.check_timeout()
+        square_r, square_c = (
+            r - r % self.puzzle.sudoku_square_size,
+            c - c % self.puzzle.sudoku_square_size,
+        )
+        for dr, dc in product(range(self.puzzle.sudoku_square_size), repeat=2):
+            new_r, new_c = square_r + dr, square_c + dc
+            if self.state.grid[new_r][new_c] is None:
+                dirty.add((new_r, new_c))
 
-        if c == self.puzzle.grid_size:
-            r, c = r + 1, 0
-            if r == self.puzzle.grid_size:
-                self.store_solution()
-                return 1
-
-        if self.state.grid[r][c] is not None:
-            return self._solve(r, c + 1)
-
-        res = 0
-        for value in range(1, self.puzzle.grid_size + 1):
-            if not self.puzzle.is_valid(r, c, value):
-                continue
-
-            dirty = self.puzzle.set_value(r, c, value)
-            res += self._solve_dirty(r, c + 1, dirty)
-            self.puzzle.unset_value(r, c)
-
-        return res
+        return dirty
