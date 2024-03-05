@@ -14,6 +14,7 @@ import thermometers.puzzle, thermometers.solver
 import tents.puzzle, tents.solver
 import light_up.puzzle, light_up.solver
 import galaxies.puzzle, galaxies.solver
+import hitori.puzzle, hitori.solver
 
 
 PUZZLES = {
@@ -51,6 +52,7 @@ PUZZLES = {
     "tents": (tents.puzzle.TentsPuzzle, tents.solver.TentsSolver),
     "light_up": (light_up.puzzle.LightUpPuzzle, light_up.solver.LightUpSolver),
     "galaxies": (galaxies.puzzle.GalaxiesPuzzle, galaxies.solver.GalaxiesSolver),
+    "hitori": (hitori.puzzle.HitoriPuzzle, hitori.solver.HitoriSolver),
 }
 
 
