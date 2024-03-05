@@ -58,10 +58,16 @@ class Solver(ABC):
             if len(self.solutions) >= self.target_solutions:
                 raise SolverTargetReachedException
 
+    def _debug_init(self):
+        print("Solving puzzle")
+        print(self.puzzle)
+
+    def _debug_complete(self):
+        print(f"Found {len(self.solutions)} solutions")
+
     def solve(self):
         if self.debug:
-            print("Solving puzzle")
-            print(self.puzzle)
+            self._debug_init()
 
         try:
             self.solutions = []
@@ -71,7 +77,7 @@ class Solver(ABC):
             pass
 
         if self.debug:
-            print(f"Found {len(self.solutions)} solutions")
+            self._debug_complete()
 
         return self.solutions
 
