@@ -1,8 +1,10 @@
-from logic_puzzles.solver import Solver
+from math import comb
+from logic_puzzles.solver import SimpleBranchingSolver
 
 
-class BattleshipsSolver(Solver):
-    def _compute_dirty(self, r, c):
+class BattleshipsSolver(SimpleBranchingSolver):
+    def _compute_dirty(self, location):
+        r, c = location
         dirty = set()
         for new_r, new_c in self.puzzle.grid_utils.orthogonal_iter(r, c):
             if self.state.grid[new_r][new_c] is None:
@@ -16,77 +18,32 @@ class BattleshipsSolver(Solver):
 
         return dirty
 
-    def _update_all_dirty(self, dirty):
-        while len(dirty) > 0:
-            r, c = dirty.pop()
-            if self.state.grid[r][c] is None:
-                valid_values = self.puzzle.get_valid_values(r, c)
-                if len(valid_values) <= 1:
-                    break
-        else:
-            # failed to find an empty dirty cell that doesn't require branching
-            return set()
+    def is_location_set(self, location):
+        r, c = location
+        return self.state.grid[r][c] is not None
 
-        if len(valid_values) == 0:
-            return None
+    def iter_locations(self):
+        yield from self.puzzle.grid_utils.iter_grid()
 
-        value = valid_values[0]
-        dirty.update(self._compute_dirty(r, c))
-        self.puzzle.set_value(r, c, value)
-        updated = self._update_all_dirty(dirty)
+    def get_branching_score(self, location):
+        r, c = location
 
-        if updated is None:
-            self.puzzle.unset_value(r, c)
-            return None
+        def compute_score(found, empty, target, total):
+            missing = target - found
+            available = total - found - empty
+            return -comb(available, missing)
 
-        updated.add((r, c))
-        return updated
-
-    def _solve_dirty(self, dirty):
-        self.check_timeout()
-
-        updated = self._update_all_dirty(dirty)
-
-        if updated is None:
-            return 0
-
-        res = self._branching_solve()
-        for r, c in updated:
-            self.puzzle.unset_value(r, c)
-
-        return res
-
-    def _branching_solve(self):
-        self.check_timeout()
-
-        best_score, r, c = None, None, None
-        for new_r, new_c in self.puzzle.grid_utils.iter_grid():
-            if self.state.grid[new_r][new_c] is not None:
-                continue
-
-            score = self.puzzle.branching_score(new_r, new_c)
-            if best_score is None or score > best_score:
-                best_score, r, c = score, new_r, new_c
-
-        if best_score is None:
-            self.store_solution()
-            return 1
-
-        res = 0
-        for value in self.branching_order(self.puzzle.get_valid_values(r, c)):
-            dirty = self._compute_dirty(r, c)
-            self.puzzle.set_value(r, c, value)
-            res += self._solve_dirty(dirty)
-            self.puzzle.unset_value(r, c)
-
-        return res
-
-    def _solve(self):
-        dirty = set(
-            (r, c)
-            for r in range(self.puzzle.grid_utils.rows)
-            for c in range(self.puzzle.grid_utils.cols)
-            if self.state.grid[r][c] is None
+        return max(
+            compute_score(
+                self.state.row_cells_by_value[1][r],
+                self.state.row_cells_by_value[0][r],
+                self.puzzle.row_counts[r],
+                self.puzzle.grid_utils.cols,
+            ),
+            compute_score(
+                self.state.col_cells_by_value[1][c],
+                self.state.col_cells_by_value[0][c],
+                self.puzzle.col_counts[c],
+                self.puzzle.grid_utils.rows,
+            ),
         )
-
-        return self._solve_dirty(dirty)

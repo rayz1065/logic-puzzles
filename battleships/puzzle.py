@@ -1,4 +1,3 @@
-from math import comb
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import (
     ORTHOGONAL_DIRECTIONS,
@@ -132,34 +131,35 @@ class BattleshipsPuzzle(Puzzle):
                 continue
             if cell_type == "x":
                 if self.state.grid[r][c] is None:
-                    self.set_value(r, c, 0)
+                    self.set_value((r, c), 0)
                 continue
 
             if self.state.grid[r][c] is None:
-                self.set_value(r, c, 1)
+                self.set_value((r, c), 1)
 
             if len(BOAT_SHAPES[cell_type]) == 1:
                 dr, dc = BOAT_SHAPES[cell_type][0]
                 new_r, new_c = r + dr, c + dc
 
                 if self.state.grid[new_r][new_c] is None:
-                    self.set_value(new_r, new_c, 1)
+                    self.set_value((new_r, new_c), 1)
 
             invalid_directions = set(ALL_DIRECTIONS) - set(BOAT_SHAPES[cell_type])
             for new_r, new_c in self.grid_utils.directions_iter(
                 r, c, invalid_directions, 1
             ):
                 if self.state.grid[new_r][new_c] is None:
-                    self.set_value(new_r, new_c, 0)
+                    self.set_value((new_r, new_c), 0)
 
     @property
     def max_boat_size(self):
         return len(self.boats) - 1
 
-    def get_valid_values(self, r, c):
-        return [value for value in (0, 1) if self.can_set(r, c, value)]
+    def get_valid_values(self, location):
+        return [value for value in (0, 1) if self.can_set(location, value)]
 
-    def can_set(self, r, c, value):
+    def can_set(self, location, value):
+        r, c = location
         if value == 1:
             # no cell diagonal from this one can contain a boat
             for new_r, new_c in self.grid_utils.diagonal_iter(r, c, 1):
@@ -349,7 +349,8 @@ class BattleshipsPuzzle(Puzzle):
             self.state.found_boats[length] -= delta
         self.state.found_boats[sum(lengths) + 1] += delta
 
-    def set_value(self, r, c, value):
+    def set_value(self, location, value):
+        r, c = location
         if value == 1:
             self._merge_boats(r, c, 1)
         else:
@@ -375,7 +376,8 @@ class BattleshipsPuzzle(Puzzle):
                     boat = self.get_boat(new_r, new_c)
                     self.state.complete_boats[len(boat)] += 1
 
-    def unset_value(self, r, c):
+    def unset_value(self, location):
+        r, c = location
         value = self.state.grid[r][c]
 
         if value == 1:
@@ -403,24 +405,3 @@ class BattleshipsPuzzle(Puzzle):
 
         if value == 1:
             self._merge_boats(r, c, -1)
-
-    def branching_score(self, r, c):
-        def compute_score(found, target, grid_size, empty):
-            missing = target - found
-            available = grid_size - found - empty
-            return -comb(available, missing)
-
-        return max(
-            compute_score(
-                self.state.row_cells_by_value[1][r],
-                self.row_counts[r],
-                self.grid_utils.cols,
-                self.state.row_cells_by_value[0][r],
-            ),
-            compute_score(
-                self.state.col_cells_by_value[1][c],
-                self.col_counts[c],
-                self.grid_utils.rows,
-                self.state.col_cells_by_value[0][c],
-            ),
-        )
