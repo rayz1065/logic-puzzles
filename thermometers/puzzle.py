@@ -1,6 +1,5 @@
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils, ARROWS, ORTHOGONAL_DIRECTIONS, BENDS
-from math import comb
 
 
 class ThermometersPuzzleState(PuzzleState):
@@ -146,10 +145,11 @@ class ThermometersPuzzle(Puzzle):
 
         return min(res, min(i for i, x in enumerate(values) if x == 0) - 1)
 
-    def get_valid_values(self, r, c):
-        return [x for x in (0, 1) if self.can_set(r, c, x)]
+    def get_valid_values(self, location):
+        return [x for x in (0, 1) if self.can_set(location, x)]
 
-    def can_set(self, r, c, value):
+    def can_set(self, location, value):
+        r, c = location
         assert self.state.grid[r][c] is None
 
         thermometer_idx, cell_idx = self.cell_thermometer[r][c]
@@ -170,7 +170,7 @@ class ThermometersPuzzle(Puzzle):
             available = total - found - empty
             return 0 <= missing <= available
 
-        self.set_value(r, c, value)
+        self.set_value(location, value)
 
         res = True
         if res:
@@ -189,42 +189,26 @@ class ThermometersPuzzle(Puzzle):
                 self.grid_utils.rows,
             )
 
-        self.unset_value(r, c)
+        self.unset_value(location)
 
         return res
 
-    def _update_value(self, r, c, value, delta):
+    def _update_value(self, location, value, delta):
+        r, c = location
         thermometer_idx, _ = self.cell_thermometer[r][c]
         self.state.found_by_col[value][c] += delta
         self.state.found_by_row[value][r] += delta
         self.state.found_by_thermometer[value][thermometer_idx] += delta
 
-    def set_value(self, r, c, value):
+    def set_value(self, location, value):
+        r, c = location
+        assert self.state.grid[r][c] is None
         self.state.grid[r][c] = value
-        self._update_value(r, c, value, 1)
+        self._update_value(location, value, 1)
 
-    def unset_value(self, r, c):
+    def unset_value(self, location):
+        r, c = location
         value = self.state.grid[r][c]
+        assert value is not None
         self.state.grid[r][c] = None
-        self._update_value(r, c, value, -1)
-
-    def get_branching_score(self, r, c):
-        def compute_score(found, empty, target, total):
-            missing = target - found
-            available = total - found - empty
-            return -comb(available, missing)
-
-        return max(
-            compute_score(
-                self.state.found_by_row[1][r],
-                self.state.found_by_row[0][r],
-                self.row_counts[r],
-                self.grid_utils.cols,
-            ),
-            compute_score(
-                self.state.found_by_col[1][c],
-                self.state.found_by_col[0][c],
-                self.col_counts[c],
-                self.grid_utils.rows,
-            ),
-        )
+        self._update_value(location, value, -1)
