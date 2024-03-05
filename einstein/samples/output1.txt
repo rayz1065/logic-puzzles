@@ -18,7 +18,7 @@ Found 1 solutions
 - ((PERSON: 'D') <-> (HOUSE_NUMBER: '1⃣'))
 - not ((FOOD: '🍎') <-> (PET: '🐢'))
 # State
-- (PERSON: 'A'), (PET: '🐢'), (HOUSE_NUMBER: '3⃣'), (FOOD: '🍐'), (HOUSE_COLOR: '💚')
-- (PERSON: 'B'), (PET: '🐠'), (HOUSE_NUMBER: '4⃣'), (FOOD: '🍌'), (HOUSE_COLOR: '💙')
-- (PERSON: 'C'), (PET: '🐶'), (HOUSE_NUMBER: '2⃣'), (FOOD: '🍎'), (HOUSE_COLOR: '❤')
-- (PERSON: 'D'), (PET: '🐈'), (HOUSE_NUMBER: '1⃣'), (FOOD: '🍊'), (HOUSE_COLOR: '💛')
+- (FOOD: '🍐'), (HOUSE_COLOR: '💚'), (HOUSE_NUMBER: '3⃣'), (PERSON: 'A'), (PET: '🐢')
+- (FOOD: '🍌'), (HOUSE_COLOR: '💙'), (HOUSE_NUMBER: '4⃣'), (PERSON: 'B'), (PET: '🐠')
+- (FOOD: '🍎'), (HOUSE_COLOR: '❤'), (HOUSE_NUMBER: '2⃣'), (PERSON: 'C'), (PET: '🐶')
+- (FOOD: '🍊'), (HOUSE_COLOR: '💛'), (HOUSE_NUMBER: '1⃣'), (PERSON: 'D'), (PET: '🐈')

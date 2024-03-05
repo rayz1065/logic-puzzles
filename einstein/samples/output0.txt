@@ -8,6 +8,6 @@ Found 1 solutions
 - ((HOUSE_NUMBER: '1⃣') <-> (HOUSE_COLOR: '💛'))
 - not ((PERSON: 'C') <-> (HOUSE_NUMBER: '2⃣'))
 # State
-- (PERSON: 'A'), (FOOD: '🍎'), (HOUSE_COLOR: '💛'), (HOUSE_NUMBER: '1⃣')
-- (PERSON: 'B'), (FOOD: '🍊'), (HOUSE_NUMBER: '2⃣'), (HOUSE_COLOR: '❤')
-- (PERSON: 'C'), (FOOD: '🍐'), (HOUSE_NUMBER: '3⃣'), (HOUSE_COLOR: '💙')
+- (FOOD: '🍎'), (HOUSE_COLOR: '💛'), (HOUSE_NUMBER: '1⃣'), (PERSON: 'A')
+- (FOOD: '🍊'), (HOUSE_COLOR: '❤'), (HOUSE_NUMBER: '2⃣'), (PERSON: 'B')
+- (FOOD: '🍐'), (HOUSE_COLOR: '💙'), (HOUSE_NUMBER: '3⃣'), (PERSON: 'C')
