@@ -15,7 +15,7 @@ import tents.puzzle, tents.solver
 import light_up.puzzle, light_up.solver
 import galaxies.puzzle, galaxies.solver
 import hitori.puzzle, hitori.solver
-
+import sudoku.puzzle, sudoku.solver
 
 PUZZLES = {
     "kakuro": (kakuro.puzzle.KakuroPuzzle, kakuro.solver.KakuroSolver),
@@ -53,6 +53,7 @@ PUZZLES = {
     "light_up": (light_up.puzzle.LightUpPuzzle, light_up.solver.LightUpSolver),
     "galaxies": (galaxies.puzzle.GalaxiesPuzzle, galaxies.solver.GalaxiesSolver),
     "hitori": (hitori.puzzle.HitoriPuzzle, hitori.solver.HitoriSolver),
+    "sudoku": (sudoku.puzzle.SudokuPuzzle, sudoku.solver.SudokuSolver),
 }
 
 

@@ -162,6 +162,26 @@ class SimpleBranchingSolver(Solver, ABC):
 
         return res
 
+    def _solve_updates_map(self, to_update):
+        updated = []
+        dirty = set()
+
+        res = 0
+        for location, value in to_update.items():
+            if not self.puzzle.can_set(location, value):
+                break
+
+            updated.append(location)
+            self.puzzle.set_value(location, value)
+            dirty.update(self._compute_dirty(location))
+        else:
+            res += self._solve_dirty(dirty)
+
+        for location in updated:
+            self.puzzle.unset_value(location)
+
+        return res
+
     def _debug_branching(self, location):
         print(f"Branching at {location}")
 
