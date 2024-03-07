@@ -52,23 +52,28 @@ class SudokuSolver(SimpleBranchingSolver):
                     continue
 
                 if len(locations) == 0:
-                    return 0
+                    return None
 
                 location = locations[0]
                 if to_update.get(location, value) != value:
-                    return 0
+                    return None
 
                 to_update[location] = value
 
-        if self.debug:
-            print("Found cells by hidden singles:", len(to_update))
 
         return to_update
 
     def _branching_solve(self):
         to_update = self.find_hidden_singles()
 
+        if to_update is None:
+            if self.debug:
+                print("Clashes found while looking for hidden singles")
+            return 0
+
         if to_update:
+            if self.debug:
+                print("Found cells by hidden singles:", len(to_update))
             return self._solve_updates_map(to_update)
 
         return super()._branching_solve()
