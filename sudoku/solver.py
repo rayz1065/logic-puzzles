@@ -1,80 +1,33 @@
 from itertools import product
 from logic_puzzles.solver import SimpleBranchingSolver
+from logic_puzzles.sudoku_like import SudokuLike
 
-
-class SudokuSolver(SimpleBranchingSolver):
-    def is_location_set(self, location):
-        r, c = location
-        return self.state.grid[r][c] is not None
-
-    def iter_locations(self):
-        yield from self.puzzle.grid_utils.iter_grid()
-
+class SudokuSolver(SimpleBranchingSolver, SudokuLike):
     def get_branching_score(self, location):
         return -len(self.puzzle.get_valid_values(location))
 
-    def _get_hints_locations(self, cells):
-        hints_locations = {value: [] for value in self.puzzle.sudoku_values}
-        for location in cells:
-            if self.is_location_set(location):
-                r, c = location
-                hints_locations.pop(self.state.grid[r][c])
-                continue
+    def get_constrained_locations(self):
+        res = []
+        res.extend(  # rows
+            [(r, c) for c in range(self.puzzle.grid_utils.cols)]
+            for r in range(self.puzzle.grid_utils.rows)
+        )
+        res.extend(  # cols
+            [(r, c) for r in range(self.puzzle.grid_utils.rows)]
+            for c in range(self.puzzle.grid_utils.cols)
+        )
+        res.extend(  # squares
+            list(self.puzzle.iter_square(square_r, square_c))
+            for square_r in range(self.puzzle.rows_square_count)
+            for square_c in range(self.puzzle.cols_square_count)
+        )
 
-            valid_values = self.puzzle.get_valid_values(location)
-            for value in valid_values:
-                hints_locations[value].append(location)
-
-        return hints_locations
-
-    def find_hidden_singles(self):
-        to_update = {}
-
-        hidden_singles_locations = []
-        for r in range(self.puzzle.grid_utils.rows):
-            cells = [(r, c) for c in range(self.puzzle.grid_utils.cols)]
-            hidden_singles_locations.append(cells)
-
-        for c in range(self.puzzle.grid_utils.cols):
-            cells = [(r, c) for r in range(self.puzzle.grid_utils.rows)]
-            hidden_singles_locations.append(cells)
-
-        for square_r in range(self.puzzle.rows_square_count):
-            for square_c in range(self.puzzle.cols_square_count):
-                cells = list(self.puzzle.iter_square(square_r, square_c))
-                hidden_singles_locations.append(cells)
-
-        for cells in hidden_singles_locations:
-            hints_locations = self._get_hints_locations(cells)
-
-            for value, locations in hints_locations.items():
-                if len(locations) > 1:
-                    continue
-
-                if len(locations) == 0:
-                    return None
-
-                location = locations[0]
-                if to_update.get(location, value) != value:
-                    return None
-
-                to_update[location] = value
-
-
-        return to_update
+        return res
 
     def _branching_solve(self):
-        to_update = self.find_hidden_singles()
-
-        if to_update is None:
-            if self.debug:
-                print("Clashes found while looking for hidden singles")
-            return 0
-
-        if to_update:
-            if self.debug:
-                print("Found cells by hidden singles:", len(to_update))
-            return self._solve_updates_map(to_update)
+        res = self._solve_hidden_singles()
+        if res is not None:
+            return res
 
         return super()._branching_solve()
 

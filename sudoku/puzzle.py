@@ -77,10 +77,6 @@ class SudokuPuzzle(Puzzle):
     def cols_square_count(self):
         return self.rows_square_size
 
-    @cached_property
-    def sudoku_values(self):
-        return SUDOKU_VALUES[: self.grid_utils.rows]
-
     def iter_square(self, square_r, square_c):
         base_r, base_c = (
             square_r * self.rows_square_size,
@@ -103,18 +99,18 @@ class SudokuPuzzle(Puzzle):
             found_by_row={
                 (row, value): 0
                 for row in range(self.grid_utils.rows)
-                for value in self.sudoku_values
+                for value in self.iter_values()
             },
             found_by_col={
                 (col, value): 0
                 for col in range(self.grid_utils.rows)
-                for value in self.sudoku_values
+                for value in self.iter_values()
             },
             found_by_square={
                 (square_r, square_c, value): 0
                 for square_r in range(self.rows_square_count)
                 for square_c in range(self.cols_square_count)
-                for value in self.sudoku_values
+                for value in self.iter_values()
             },
         )
 
@@ -123,8 +119,11 @@ class SudokuPuzzle(Puzzle):
             if value is not None:
                 self.set_value((r, c), value)
 
-    def get_valid_values(self, location):
-        return [value for value in self.sudoku_values if self.can_set(location, value)]
+    def iter_values(self):
+        yield from SUDOKU_VALUES[: self.grid_utils.rows]
+
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
 
     def can_set(self, location, value):
         r, c = location
@@ -135,6 +134,10 @@ class SudokuPuzzle(Puzzle):
             and self.state.found_by_row[r, value] == 0
             and self.state.found_by_square[square_r, square_c, value] == 0
         )
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def _update_value(self, location, value, delta):
         r, c = location

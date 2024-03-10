@@ -104,20 +104,15 @@ class Solver(ABC):
 
 class SimpleBranchingSolver(Solver, ABC):
     @abstractmethod
-    def is_location_set(self, location):
-        raise NotImplementedError
-
-    @abstractmethod
-    def iter_locations(self):
-        raise NotImplementedError
-
-    @abstractmethod
     def get_branching_score(self, location):
         raise NotImplementedError
 
     @abstractmethod
     def _compute_dirty(self, location):
         raise NotImplementedError
+
+    def is_location_set(self, location):
+        return self.puzzle.get_value(location) is not None
 
     def _update_all_dirty(self, dirty):
         while len(dirty) > 0:
@@ -189,7 +184,7 @@ class SimpleBranchingSolver(Solver, ABC):
         self.check_timeout()
 
         best_score, location = None, None
-        for new_location in self.iter_locations():
+        for new_location in self.puzzle.iter_locations():
             if self.is_location_set(new_location):
                 continue
 
@@ -214,5 +209,5 @@ class SimpleBranchingSolver(Solver, ABC):
         return res
 
     def _solve(self):
-        dirty = set(self.iter_locations())
+        dirty = set(self.puzzle.iter_locations())
         return self._solve_dirty(dirty)
