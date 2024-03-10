@@ -2,13 +2,6 @@ from logic_puzzles.solver import SimpleBranchingSolver
 
 
 class HitoriSolver(SimpleBranchingSolver):
-    def is_location_set(self, location):
-        r, c = location
-        return self.puzzle.state.grid[r][c] is not None
-
-    def iter_locations(self):
-        yield from self.puzzle.grid_utils.iter_grid()
-
     def get_branching_score(self, location):
         r, c = location
         number = self.puzzle.initial_grid[r][c]

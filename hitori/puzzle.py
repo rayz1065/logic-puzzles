@@ -26,6 +26,8 @@ class HitoriPuzzleState(PuzzleState):
 
 
 class HitoriPuzzle(Puzzle):
+    """https://en.wikipedia.org/wiki/Hitori"""
+
     initial_grid: list[list[int]]
     grid_utils: GridUtils
     state: HitoriPuzzleState
@@ -146,6 +148,16 @@ class HitoriPuzzle(Puzzle):
                 visited.add((new_r, new_c))
 
         return False
+
+    def iter_values(self):
+        yield from (0, 1)
+
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def _update_value(self, location, value, delta):
         r, c = location
