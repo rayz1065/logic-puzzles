@@ -4,13 +4,6 @@ from logic_puzzles.grid_utils import ORTHOGONAL_DIRECTIONS
 
 
 class KropkiSolver(SimpleBranchingSolver):
-    def is_location_set(self, location):
-        r, c = location
-        return self.state.grid[r][c] is not None
-
-    def iter_locations(self):
-        yield from self.puzzle.grid_utils.iter_grid()
-
     def get_branching_score(self, location):
         return -len(self.puzzle.get_valid_values(location))
 

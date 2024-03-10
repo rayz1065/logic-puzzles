@@ -132,13 +132,11 @@ class KropkiPuzzle(Puzzle):
 
         return conflicts
 
-    def get_valid_values(self, location):
-        r, c = location
-        return [
-            value
-            for value in range(1, self.grid_utils.rows + 1)
-            if self.can_set((r, c), value)
-        ]
+    def iter_values(self):
+        yield from range(1, self.grid_utils.rows + 1)
+
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
 
     def can_set(self, location, value):
         r, c = location
@@ -170,6 +168,10 @@ class KropkiPuzzle(Puzzle):
                 continue
 
             self.state.conflict_cells[new_r][new_c][value] += delta
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def set_value(self, location, value):
         r, c = location
