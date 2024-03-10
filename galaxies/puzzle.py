@@ -158,6 +158,12 @@ class GalaxiesPuzzle(Puzzle):
         r, c = location
         return [i for i in self.cell_galaxies[r][c] if self.can_set((r, c), i)]
 
+    def iter_values(self):
+        yield from range(len(self.galaxies))
+
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
+
     def can_set(self, location, value):
         r, c = location
 
@@ -199,6 +205,10 @@ class GalaxiesPuzzle(Puzzle):
         self.unset_value((r, c))
 
         return res
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def set_value(self, location, value):
         r, c = location

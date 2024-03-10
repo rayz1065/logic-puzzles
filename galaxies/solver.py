@@ -2,13 +2,6 @@ from logic_puzzles.solver import SimpleBranchingSolver
 
 
 class GalaxiesSolver(SimpleBranchingSolver):
-    def iter_locations(self):
-        yield from self.puzzle.grid_utils.iter_grid()
-
-    def is_location_set(self, location):
-        r, c = location
-        return self.state.grid[r][c] is not None
-
     def _debug_init(self):
         # print the cell_galaxies for testing purposes
         PRETTY_GALAXY = ["+", "Q", "x", "X", "o", "O", "0", "s", "8", "S"]
