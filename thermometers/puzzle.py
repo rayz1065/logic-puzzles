@@ -145,8 +145,11 @@ class ThermometersPuzzle(Puzzle):
 
         return min(res, min(i for i, x in enumerate(values) if x == 0) - 1)
 
-    def get_valid_values(self, location):
-        return [x for x in (0, 1) if self.can_set(location, x)]
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
+
+    def iter_values(self):
+        yield from (0, 1)
 
     def can_set(self, location, value):
         r, c = location
@@ -192,6 +195,10 @@ class ThermometersPuzzle(Puzzle):
         self.unset_value(location)
 
         return res
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def _update_value(self, location, value, delta):
         r, c = location

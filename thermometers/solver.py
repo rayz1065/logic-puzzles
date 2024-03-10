@@ -22,13 +22,6 @@ class ThermometersSolver(SimpleBranchingSolver):
 
         return dirty
 
-    def is_location_set(self, location):
-        r, c = location
-        return self.state.grid[r][c] is not None
-
-    def iter_locations(self):
-        yield from self.puzzle.grid_utils.iter_grid()
-
     def get_branching_score(self, location):
         r, c = location
 
