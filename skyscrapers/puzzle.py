@@ -93,6 +93,10 @@ class SkyscrapersPuzzle(Puzzle):
         self.state.found_by_row[r][value] += delta
         self.state.found_by_col[c][value] += delta
 
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
+
     def set_value(self, location, value):
         r, c = location
         assert self.state.grid[r][c] is None
@@ -106,8 +110,11 @@ class SkyscrapersPuzzle(Puzzle):
         self.state.grid[r][c] = None
         self._update_conflicts(r, c, value, -1)
 
-    def get_valid_values(self, location):
-        return [x for x in range(self.grid_utils.rows) if self.can_set(location, x)]
+    def iter_values(self):
+        yield from range(self.grid_utils.rows)
+
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
 
     def can_set(self, location, value):
         r, c = location

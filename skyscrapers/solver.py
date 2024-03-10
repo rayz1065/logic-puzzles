@@ -21,10 +21,3 @@ class SkyscrapersSolver(SimpleBranchingSolver):
                 dirty.add((r, new_c))
 
         return dirty
-
-    def is_location_set(self, location):
-        r, c = location
-        return self.state.grid[r][c] is not None
-
-    def iter_locations(self):
-        yield from self.puzzle.grid_utils.iter_grid()
