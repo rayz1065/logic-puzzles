@@ -18,6 +18,8 @@ class LightUpPuzzleState(PuzzleState):
 
 
 class LightUpPuzzle(Puzzle):
+    """https://en.wikipedia.org/wiki/Light_Up_(puzzle)"""
+
     @classmethod
     def from_string(cls, string):
         lines = [x.strip() for x in string.split("\n")]
@@ -119,9 +121,6 @@ class LightUpPuzzle(Puzzle):
                 res += 1
         return res
 
-    def get_valid_values(self, location):
-        return [x for x in (0, 1) if self.can_set(location, x)]
-
     def _check_bounds(self, found, empty, target, total):
         missing = target - found
         available = total - found - empty
@@ -173,6 +172,18 @@ class LightUpPuzzle(Puzzle):
         self.unset_value(location)
 
         return res
+
+    def iter_locations(self):
+        for r, c in self.grid_utils.iter_grid():
+            if self.initial_grid[r][c] == ".":
+                yield r, c
+
+    def iter_values(self):
+        yield from (0, 1)
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def set_value(self, location, value):
         r, c = location

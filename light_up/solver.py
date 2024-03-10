@@ -3,15 +3,6 @@ from logic_puzzles.grid_utils import ORTHOGONAL_DIRECTIONS
 
 
 class LightUpSolver(SimpleBranchingSolver):
-    def iter_locations(self):
-        for r, c in self.puzzle.grid_utils.iter_grid():
-            if self.puzzle.initial_grid[r][c] == ".":
-                yield r, c
-
-    def is_location_set(self, location):
-        r, c = location
-        return self.state.grid[r][c] is not None
-
     def _compute_dirty(self, location):
         r, c = location
         dirty = set()
