@@ -54,6 +54,7 @@ class MagicalMazePuzzle(Puzzle):
         self.initial_values = initial_values
         self.locations = []
         self.distance = [[None] * self.grid_size for _ in range(self.grid_size)]
+        self.state = state
 
         # find the entrance of the maze
         for (r, c), cell in self.iter_grid():
@@ -79,24 +80,25 @@ class MagicalMazePuzzle(Puzzle):
                 raise ValueError(f"Nowhere to go from {r}, {c}!")
 
         if state is None:
-            values = [[None] * self.grid_size for _ in range(self.grid_size)]
-            conflict_values = [
-                [[0] * (MAX_VALUE + 1) for _ in range(self.grid_size)]
-                for _ in range(self.grid_size)
-            ]
+            self.initialize_state()
 
-            rows_found = [[0] * (MAX_VALUE + 1) for _ in range(self.grid_size)]
-            cols_found = [[0] * (MAX_VALUE + 1) for _ in range(self.grid_size)]
+    def initialize_state(self):
+        values = [[None] * self.grid_size for _ in range(self.grid_size)]
+        conflict_values = [
+            [[0] * (MAX_VALUE + 1) for _ in range(self.grid_size)]
+            for _ in range(self.grid_size)
+        ]
 
-            self.state = MagicalMazePuzzleState(
-                values, conflict_values, rows_found, cols_found
-            )
+        rows_found = [[0] * (MAX_VALUE + 1) for _ in range(self.grid_size)]
+        cols_found = [[0] * (MAX_VALUE + 1) for _ in range(self.grid_size)]
 
-            for (r, c), _ in self.iter_grid():
-                if self.initial_values[r][c] is not None:
-                    self.set_value(r, c, self.initial_values[r][c])
-        else:
-            self.state = state
+        self.state = MagicalMazePuzzleState(
+            values, conflict_values, rows_found, cols_found
+        )
+
+        for (r, c), _ in self.iter_grid():
+            if self.initial_values[r][c] is not None:
+                self.set_value(r, c, self.initial_values[r][c])
 
     def __str__(self):
         return (
@@ -123,19 +125,22 @@ class MagicalMazePuzzle(Puzzle):
 
         return False
 
-    def get_available_values(self, r, c):
-        if self.state.values[r][c] is not None:
-            return []
+    def get_value(self, location):
+        r, c = location
+        return self.state.values[r][c]
 
-        res = [
-            i
-            for i in range(1, MAX_VALUE + 1)
-            if self.state.conflict_values[r][c][i] == 0
-        ]
-        if not self.must_fill_cell(r, c):
-            res.append(0)
+    def iter_locations(self):
+        yield from self.locations
 
-        return res
+    def iter_values(self):
+        yield from range(MAX_VALUE + 1)
+
+    def can_set(self, location, value):
+        r, c = location
+        if value == 0:
+            return not self.must_fill_cell(r, c)
+
+        return self.state.conflict_values[r][c][value] == 0
 
     def must_fill_cell(self, r, c):
         row_available = self.grid_size - sum(self.state.rows_found[r])

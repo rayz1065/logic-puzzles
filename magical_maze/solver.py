@@ -25,18 +25,18 @@ class MagicalMazeSolver(Solver):
         if len(dirty) == 0:
             return self._solve(dist, last_value)
 
-        available_values = self.puzzle.get_available_values(r, c)
+        valid_values = self.puzzle.get_valid_values((r, c))
 
         # no available values, we must have made a mistake
-        if len(available_values) == 0:
+        if len(valid_values) == 0:
             return 0
 
         # check if a branch is necessary on this cell
-        if len(available_values) > 1:
+        if len(valid_values) > 1:
             return self._solve_dirty(dist, last_value, dirty)
 
         # no branch is necessary
-        value = available_values[0]
+        value = valid_values[0]
         dirty.update(self.puzzle.set_value(r, c, value))
         res = self._solve_dirty(dist, last_value, dirty)
         self.puzzle.unset_value(r, c)
