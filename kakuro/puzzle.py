@@ -1,5 +1,6 @@
 from itertools import product
 from logic_puzzles.puzzle import Puzzle, PuzzleState
+from logic_puzzles.grid_utils import GridUtils
 
 
 class KakuroPuzzleState(PuzzleState):
@@ -11,6 +12,7 @@ class KakuroPuzzleState(PuzzleState):
         self.numbers_grid = numbers_grid
         self.conflicts = conflicts
         self.constraints_sum = constraints_sum
+
 
 class KakuroCell:
     def __init__(self, is_wall=False, horizontal=None, vertical=None):
@@ -65,22 +67,25 @@ class KakuroPuzzle(Puzzle):
 
     def __init__(self, grid, state=None):
         self.grid = grid
+        self.grid_utils = GridUtils(len(grid), len(grid[0]))
+        self.state = state
         self.constraints = []
-        for r, c in product(range(len(grid)), repeat=2):
+        for r, c in self.grid_utils.iter_grid():
             # we can ignore zeros as well
             if grid[r][c].horizontal:
                 cells = []
-                other_c = c + 1
-                while other_c < len(grid) and grid[r][other_c].horizontal is None:
-                    cells.append((r, other_c))
-                    other_c += 1
+                for new_r, new_c in self.grid_utils.ray_iter(r, c + 1, 0, 1):
+                    if grid[new_r][new_c].horizontal is not None:
+                        break
+                    cells.append((new_r, new_c))
                 self.constraints.append((grid[r][c].horizontal, cells))
+
             if grid[r][c].vertical:
                 cells = []
-                other_r = r + 1
-                while other_r < len(grid) and grid[other_r][c].vertical is None:
-                    cells.append((other_r, c))
-                    other_r += 1
+                for new_r, new_c in self.grid_utils.ray_iter(r + 1, c, 1, 0):
+                    if grid[new_r][new_c].vertical is not None:
+                        break
+                    cells.append((new_r, new_c))
                 self.constraints.append((grid[r][c].vertical, cells))
 
         self.constraint_indexes = {}
@@ -89,12 +94,19 @@ class KakuroPuzzle(Puzzle):
                 self.constraint_indexes.setdefault((r, c), []).append(i)
 
         if state is None:
-            numbers_grid = [[None] * len(grid) for _ in range(len(grid))]
-            conflicts = [[[0] * 10 for c in range(len(grid))] for r in range(len(grid))]
-            constraints_sum = [0] * len(self.constraints)
-            state = KakuroPuzzleState(numbers_grid, conflicts, constraints_sum)
+            self.initialize_state()
 
-        self.state = state
+    def initialize_state(self):
+        self.state = KakuroPuzzleState(
+            numbers_grid=[
+                [None] * self.grid_utils.cols for _ in range(self.grid_utils.rows)
+            ],
+            conflicts=[
+                [[0] * 10 for c in range(self.grid_utils.cols)]
+                for r in range(self.grid_utils.rows)
+            ],
+            constraints_sum=[0] * len(self.constraints),
+        )
 
     def __str__(self):
         return "\n".join(
@@ -104,7 +116,16 @@ class KakuroPuzzle(Puzzle):
             for state_line, line in zip(self.state.numbers_grid, self.grid)
         )
 
-    def can_set_value(self, r, c, value):
+    def iter_values(self):
+        yield from range(1, 10)
+
+    def iter_locations(self):
+        for r, c in self.grid_utils.iter_grid():
+            if not self.grid[r][c].is_wall:
+                yield r, c
+
+    def can_set(self, location, value):
+        r, c = location
         if self.state.conflicts[r][c][value]:
             return False
 
@@ -134,27 +155,24 @@ class KakuroPuzzle(Puzzle):
         return True
 
     def _update_value(self, r, c, value, delta):
-        dirty = set()
         for i in self.constraint_indexes[r, c]:
             self.state.constraints_sum[i] += value * delta
             cells = self.constraints[i][1]
             for other_r, other_c in cells:
                 self.state.conflicts[other_r][other_c][value] += delta
 
-                if (
-                    self.state.numbers_grid[other_r][other_c] is None
-                    and self.state.conflicts[other_r][other_c][value] == delta
-                ):
-                    dirty.add((other_r, other_c))
+    def get_value(self, location):
+        r, c = location
+        return self.state.numbers_grid[r][c]
 
-        return dirty
-
-    def set_value(self, r, c, value):
+    def set_value(self, location, value):
+        r, c = location
         assert self.state.numbers_grid[r][c] is None
         self.state.numbers_grid[r][c] = value
-        return self._update_value(r, c, value, 1)
+        self._update_value(r, c, value, 1)
 
-    def unset_value(self, r, c):
+    def unset_value(self, location):
+        r, c = location
         value = self.state.numbers_grid[r][c]
         assert value is not None
         self.state.numbers_grid[r][c] = None
