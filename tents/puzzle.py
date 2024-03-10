@@ -2,8 +2,6 @@ from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils, ORTHOGONAL_DIRECTIONS, ARROWS
 from functools import cache
 
-POSSIBLE_VALUES = [*ORTHOGONAL_DIRECTIONS, (None, None)]
-
 
 class TentsPuzzleState(PuzzleState):
     grid: list[list[tuple[int, int]]]
@@ -89,8 +87,12 @@ class TentsPuzzle(Puzzle):
         r, c = self.trees[tree_id]
         return len(list(self.grid_utils.orthogonal_iter(r, c, 1)))
 
-    def get_valid_values(self, location):
-        return [value for value in POSSIBLE_VALUES if self.can_set(location, value)]
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
+
+    def iter_values(self):
+        yield from ORTHOGONAL_DIRECTIONS
+        yield (None, None)
 
     def can_set(self, location, value):
         r, c = location
@@ -174,6 +176,10 @@ class TentsPuzzle(Puzzle):
                 self.state.found_by_tree[new_state_value][
                     self.tree_ids[new_r][new_c]
                 ] += delta
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def set_value(self, location, value):
         r, c = location
