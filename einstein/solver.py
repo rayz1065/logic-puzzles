@@ -21,10 +21,4 @@ class EinsteinSolver(SimpleBranchingSolver):
         return dirty
 
     def get_branching_score(self, location):
-        return -sum(self.puzzle.get_valid_values(location))
-
-    def is_location_set(self, location):
-        return self.state.item_location.get(location) is not None
-
-    def iter_locations(self):
-        yield from self.puzzle.items
+        return -len(self.puzzle.get_valid_values(location))

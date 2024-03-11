@@ -105,11 +105,17 @@ class EinsteinPuzzle(Puzzle):
             if other_item != item:
                 self.state.conflict_values[house][other_item] += delta
 
-    def get_valid_values(self, item):
-        return [i for i, house in enumerate(self.state.houses) if self.can_set(item, i)]
+    def iter_locations(self):
+        yield from self.items
+
+    def iter_values(self):
+        yield from range(len(self.state.houses))
 
     def can_set(self, item, house):
         return self.state.conflict_values[house][item] == 0
+
+    def get_value(self, item):
+        return self.state.item_location[item]
 
     def set_value(self, item, house):
         assert self.state.item_location[item] is None
