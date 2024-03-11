@@ -1,0 +1,8 @@
+Found 1 solutions
+-----------------
+↘ X ↙ X ↓ X
+X ↑ ↖ X ↓ ↙
+X ↗ ↗ ↗ ↖ X
+X ↖ ↙ ← ↙ ↖
+X ↖ ↙ ↙ X ↖
+X X X X ↖ ↖

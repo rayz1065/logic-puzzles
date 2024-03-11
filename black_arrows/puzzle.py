@@ -54,6 +54,7 @@ class BlackArrowsPuzzle(Puzzle):
     def __init__(self, grid, state=None):
         self.grid = grid
         self.pointed_by = [[[] for _ in row] for row in grid]
+        self.state = state
 
         for r, c in product(range(self.grid_size), repeat=2):
             dr, dc = self.grid[r][c]
@@ -61,23 +62,24 @@ class BlackArrowsPuzzle(Puzzle):
                 self.pointed_by[new_r][new_c].append((r, c))
 
         if state is None:
-            pointing_to_undecided = [[0 for _ in row] for row in grid]
+            self.initialize_state()
 
-            # this can also be more simply computed as the distance to the edge of the grid
-            for r, c in product(range(self.grid_size), repeat=2):
-                dr, dc = self.grid[r][c]
-                pointing_to_undecided[r][c] = sum(
-                    1 for new_r, new_c in self.ray_iter(r, c, dr, dc)
-                )
+    def initialize_state(self):
+        pointing_to_undecided = [[0 for _ in row] for row in self.grid]
 
-            state = BlackArrowsPuzzleState(
-                marked=[[None for _ in row] for row in grid],
-                solved=[[0 for _ in row] for row in grid],
-                pointed_from_solved=[[0 for _ in row] for row in grid],
-                pointing_to_undecided=pointing_to_undecided,
+        # this can also be more simply computed as the distance to the edge of the grid
+        for r, c in product(range(self.grid_size), repeat=2):
+            dr, dc = self.grid[r][c]
+            pointing_to_undecided[r][c] = sum(
+                1 for new_r, new_c in self.ray_iter(r, c, dr, dc)
             )
 
-        self.state = state
+        self.state = BlackArrowsPuzzleState(
+            marked=[[None for _ in row] for row in self.grid],
+            solved=[[0 for _ in row] for row in self.grid],
+            pointed_from_solved=[[0 for _ in row] for row in self.grid],
+            pointing_to_undecided=pointing_to_undecided,
+        )
 
     def __str__(self):
         ARROW = {value: key for key, value in PRETTY_DIRECTIONS.items()}
@@ -110,7 +112,14 @@ class BlackArrowsPuzzle(Puzzle):
             for new_r, new_c in self.ray_iter(r, c, dr, dc):
                 yield dr, dc, new_r, new_c
 
-    def can_mark(self, r, c, value):
+    def iter_locations(self):
+        yield from product(range(self.grid_size), repeat=2)
+
+    def iter_values(self):
+        yield from (0, 1)
+
+    def can_set(self, location, value):
+        r, c = location
         if value == 1:
             return self.state.pointed_from_solved[r][c] == 0
 
@@ -138,11 +147,17 @@ class BlackArrowsPuzzle(Puzzle):
                 self._update_pointed_from_solved(new_r, new_c, delta)
             self.state.pointing_to_undecided[new_r][new_c] -= delta
 
-    def set_mark(self, r, c, value):
+    def get_value(self, location):
+        r, c = location
+        return self.state.marked[r][c]
+
+    def set_value(self, location, value):
+        r, c = location
         self.state.marked[r][c] = value
         self._update_conflicts(r, c, value, 1)
 
-    def unset_mark(self, r, c):
+    def unset_value(self, location):
+        r, c = location
         value = self.state.marked[r][c]
         self.state.marked[r][c] = None
         self._update_conflicts(r, c, value, -1)
