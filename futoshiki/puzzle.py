@@ -158,7 +158,6 @@ class FutoshikiPuzzle(Puzzle):
     def get_valid_values(self, location):
         location_type, location_data = location
         if location_type == "hint":
-            r, c, value = location_data
             return [value for value in (0, 1) if self.can_set(location, value)]
 
         return [value for value in self.iter_values() if self.can_set(location, value)]

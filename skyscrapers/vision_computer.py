@@ -4,8 +4,12 @@ from functools import cache
 
 @cache
 def _compute_vision_bound(
-    buildings, available_heights, compute_upper=True, max_height=-1
+    buildings, all_available_heights, compute_upper=True, max_height=-1
 ):
+    """all_available_heights is a tuple where each element corresponds
+    to a cell. Each such value is a tuple of booleans where each element is
+    True if the corresponding height is available for the cell.
+    """
     if not buildings:
         return 0
 
@@ -14,21 +18,43 @@ def _compute_vision_bound(
 
     if current is not None:
         new_max_height = max(max_height, current)
-        return int(current > max_height) + _compute_vision_bound(
-            other_buildings, available_heights, compute_upper, new_max_height
+        new_available_heights = all_available_heights[1:]
+        res = _compute_vision_bound(
+            other_buildings,
+            new_available_heights,
+            compute_upper,
+            new_max_height,
         )
+        if res is None:
+            return None
+
+        return res + int(current > max_height)
 
     res = None
-    for height, is_available in enumerate(available_heights):
+    for height, is_available in enumerate(all_available_heights[0]):
         if not is_available:
             continue
 
-        new_available = list(available_heights)
-        new_available[height] = False
+        new_available_heights = list(all_available_heights)
+        for i, available_heights in enumerate(new_available_heights):
+            new_available_heights[i] = list(available_heights)
+            new_available_heights[i][height] = False
+            new_available_heights[i] = tuple(new_available_heights[i])
+        new_available_heights = tuple(new_available_heights[1:])
+
         new_max_height = max(max_height, height)
-        new_res = int(height > max_height) + _compute_vision_bound(
-            other_buildings, tuple(new_available), compute_upper, new_max_height
+
+        new_res = _compute_vision_bound(
+            other_buildings,
+            new_available_heights,
+            compute_upper,
+            new_max_height,
         )
+
+        if new_res is None:
+            continue
+
+        new_res += int(height > max_height)
 
         if res is None:
             res = new_res
@@ -38,31 +64,30 @@ def _compute_vision_bound(
     return res
 
 
-def normalize_buildings(buildings):
+def normalize_buildings(buildings, available_heights):
     res = []
+    available_heights_res = []
     max_height = -1
     for i, building in enumerate(buildings):
         max_height = max(max_height, i - 1)
         if building is None:
             res.append(None)
+            available_heights_res.append(available_heights[i])
         elif building > max_height:
             max_height = building
             res.append(building)
+            available_heights_res.append(available_heights[i])
 
-    return tuple(res)
+    return tuple(res), tuple(available_heights_res)
 
 
-def compute_vision_upper_bound(buildings):
-    grid_size = len(buildings)
-    available = tuple((i not in buildings) for i in range(grid_size))
-    buildings = normalize_buildings(buildings)
+def compute_vision_upper_bound(buildings, available):
+    buildings, available = normalize_buildings(buildings, available)
     return _compute_vision_bound(buildings, available, True)
 
 
-def compute_vision_lower_bound(buildings):
-    grid_size = len(buildings)
-    available = tuple((i not in buildings) for i in range(grid_size))
-    buildings = normalize_buildings(buildings)
+def compute_vision_lower_bound(buildings, available):
+    buildings, available = normalize_buildings(buildings, available)
     return _compute_vision_bound(buildings, available, False)
 
 
@@ -82,7 +107,12 @@ def _generate_tests(grid_size=6, count=100):
                 test.append(numbers.pop())
             else:
                 test.append(None)
-        tests.append(tuple(test))
+
+        available = tuple(
+            tuple(i not in test for i in range(grid_size)) for _ in range(grid_size)
+        )
+
+        tests.append((tuple(test), available))
 
     return tests
 
@@ -90,12 +120,12 @@ def _generate_tests(grid_size=6, count=100):
 def main():
     random.seed(1065)
     tests = _generate_tests(count=10000)
-    for test in tests:
+    for test, available in tests:
         print(
             stringy_buildings(test),
             "->",
-            compute_vision_upper_bound(test),
-            compute_vision_lower_bound(test),
+            compute_vision_upper_bound(test, available),
+            compute_vision_lower_bound(test, available),
         )
 
 

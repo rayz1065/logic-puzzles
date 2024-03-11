@@ -5,14 +5,16 @@ from .vision_computer import compute_vision_lower_bound, compute_vision_upper_bo
 
 
 class SkyscrapersPuzzleState(PuzzleState):
-    grid: list[list[int]]
+    grid: list[list[int | None]]
     found_by_row: list[list[int]]  # row -> value -> frequency
     found_by_col: list[list[int]]  # col -> value -> frequency
+    hints: dict[tuple[int, int, int], int | None]  # (r, c, value) -> 0 for absent
 
-    def __init__(self, grid, found_by_row, found_by_col):
+    def __init__(self, grid, found_by_row, found_by_col, hints):
         self.grid = grid
         self.found_by_row = found_by_row
         self.found_by_col = found_by_col
+        self.hints = hints
 
 
 class SkyscrapersPuzzle(Puzzle):
@@ -61,12 +63,17 @@ class SkyscrapersPuzzle(Puzzle):
             found_by_col=[
                 ([0] * self.grid_utils.rows) for _ in range(self.grid_utils.rows)
             ],
+            hints={
+                (r, c, value): None
+                for r, c in self.grid_utils.iter_grid()
+                for value in range(self.grid_utils.rows)
+            },
         )
 
         for r, c in self.grid_utils.iter_grid():
             if self.initial_grid[r][c] != ".":
                 value = int(self.initial_grid[r][c]) - 1
-                self.set_value((r, c), value)
+                self.set_value(("grid", (r, c)), value)
 
     def __str__(self):
         def stringify_hint(hint):
@@ -93,18 +100,47 @@ class SkyscrapersPuzzle(Puzzle):
         self.state.found_by_row[r][value] += delta
         self.state.found_by_col[c][value] += delta
 
+    def get_valid_values(self, location):
+        location_type, location_data = location
+        if location_type == "hint":
+            return [x for x in (0, 1) if self.can_set(location, x)]
+
+        return [x for x in self.iter_values() if self.can_set(location, x)]
+
     def get_value(self, location):
-        r, c = location
+        location_type, location_data = location
+        if location_type == "hint":
+            r, c, value = location_data
+            if self.state.grid[r][c] == value:
+                return 1
+            if self.state.grid[r][c] is not None:
+                return 0
+
+            return self.state.hints[r, c, value]
+
+        r, c = location_data
         return self.state.grid[r][c]
 
     def set_value(self, location, value):
-        r, c = location
+        location_type, location_data = location
+        if location_type == "hint":
+            r, c, hint_value = location_data
+            self.state.hints[r, c, hint_value] = value
+            return
+
+        r, c = location_data
         assert self.state.grid[r][c] is None
         self.state.grid[r][c] = value
         self._update_conflicts(r, c, value, 1)
 
     def unset_value(self, location):
-        r, c = location
+        location_type, location_data = location
+        if location_type == "hint":
+            r, c, hint_value = location_data
+            self.state.hints[r, c, hint_value] = None
+            return
+
+        r, c = location_data
         value = self.state.grid[r][c]
         assert value is not None
         self.state.grid[r][c] = None
@@ -114,17 +150,47 @@ class SkyscrapersPuzzle(Puzzle):
         yield from range(self.grid_utils.rows)
 
     def iter_locations(self):
-        yield from self.grid_utils.iter_grid()
+        for r, c in self.grid_utils.iter_grid():
+            yield ("grid", (r, c))
+
+        for r, c in self.grid_utils.iter_grid():
+            for value in range(self.grid_utils.rows):
+                yield ("hint", (r, c, value))
+
+    def _compute_available_mask(self, r, c):
+        """computes the availability mask for the location based only on the state"""
+        return tuple(
+            (
+                self.state.found_by_row[r][value] == 0
+                and self.state.found_by_col[c][value] == 0
+                and self.state.hints[r, c, value] != 0
+            )
+            for value in range(self.grid_utils.rows)
+        )
 
     def can_set(self, location, value):
-        r, c = location
+        location_type, location_data = location
+
+        if location_type == "hint":
+            if value == 0:
+                # we always allow the hint to be turned off
+                return True
+
+            # we restrict when the hint can be set to 1 to when the grid at the
+            # location can be set to the hint value, this way if this check
+            # fails we will set the hint to 0 and can use this in a feedback loop
+            r, c, hint_value = location_data
+            return self.can_set(("grid", (r, c)), hint_value)
+
+        r, c = location_data
         if (
             self.state.found_by_row[r][value] > 0
             or self.state.found_by_col[c][value] > 0
+            or self.state.hints[r, c, value] == 0
         ):
             return False
 
-        def cells_in_ray(r, c, dr, dc):
+        def buildings_in_ray(r, c, dr, dc):
             return [
                 self.state.grid[new_r][new_c]
                 for new_r, new_c in self.grid_utils.ray_iter(r, c, dr, dc)
@@ -132,6 +198,9 @@ class SkyscrapersPuzzle(Puzzle):
 
         self.set_value(location, value)
 
+        # compute the exact bounds of the vision for this row and column
+        # this considers availability of the buildings in each location
+        # and sets up a feedback loop that takes advantage of the hints
         VISION_BOUNDS_CHECKS = [
             (self.row_counts[0][r], (r, 0, 0, 1)),
             (self.row_counts[1][r], (r, self.grid_utils.rows - 1, 0, -1)),
@@ -144,9 +213,15 @@ class SkyscrapersPuzzle(Puzzle):
             if bound is None:
                 continue
 
-            cells = cells_in_ray(*ray_bounds)
-            lower, upper = self.compute_vision_bounds(cells)
-            if not (lower <= bound <= upper):
+            buildings = buildings_in_ray(*ray_bounds)
+            available = tuple(
+                self._compute_available_mask(new_r, new_c)
+                for new_r, new_c in self.grid_utils.ray_iter(*ray_bounds)
+            )
+
+            lower, upper = self.compute_vision_bounds(buildings, available)
+
+            if lower is None or not (lower <= bound <= upper):
                 res = False
                 break
 
@@ -154,8 +229,11 @@ class SkyscrapersPuzzle(Puzzle):
 
         return res
 
-    def compute_vision_bounds(self, cells):
-        lower = compute_vision_lower_bound(cells)
-        upper = compute_vision_upper_bound(cells)
+    def compute_vision_bounds(self, cells, available):
+        lower = compute_vision_lower_bound(cells, available)
+        if lower is None:
+            return None, None
+
+        upper = compute_vision_upper_bound(cells, available)
 
         return lower, upper
