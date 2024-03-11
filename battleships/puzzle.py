@@ -155,8 +155,11 @@ class BattleshipsPuzzle(Puzzle):
     def max_boat_size(self):
         return len(self.boats) - 1
 
-    def get_valid_values(self, location):
-        return [value for value in (0, 1) if self.can_set(location, value)]
+    def iter_values(self):
+        yield from (0, 1)
+
+    def iter_locations(self):
+        yield from self.grid_utils.iter_grid()
 
     def can_set(self, location, value):
         r, c = location
@@ -348,6 +351,10 @@ class BattleshipsPuzzle(Puzzle):
         for length in lengths:
             self.state.found_boats[length] -= delta
         self.state.found_boats[sum(lengths) + 1] += delta
+
+    def get_value(self, location):
+        r, c = location
+        return self.state.grid[r][c]
 
     def set_value(self, location, value):
         r, c = location
