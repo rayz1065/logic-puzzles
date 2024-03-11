@@ -1,7 +1,7 @@
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 
 
-class CommunicatingVesselsPuzzleState(PuzzleState):
+class AquariumPuzzleState(PuzzleState):
     water: list[list[int]]
     rows_missing: list[int]
     cols_missing: list[int]
@@ -18,7 +18,7 @@ class CommunicatingVesselsPuzzleState(PuzzleState):
         self.water = water
 
 
-class CommunicatingVesselShape:
+class AquariumShape:
     cells: list[tuple[int, int]]
     cells_by_height: dict[int, list[int]]
 
@@ -33,19 +33,20 @@ class CommunicatingVesselShape:
         self.heights = sorted(self.cells_by_height.keys(), key=lambda x: -x)
 
 
-class CommunicatingVesselsPuzzle(Puzzle):
+class AquariumPuzzle(Puzzle):
     """http://www.puzzlefountain.com/giochi.php?tipopuzzle=Vasi+comunicanti"""
 
-    state: CommunicatingVesselsPuzzleState
+    state: AquariumPuzzleState
     rows: list[int]
     cols: list[int]
     grid: list[list[int]]
-    shapes: list[CommunicatingVesselShape]
+    shapes: list[AquariumShape]
 
     def __init__(self, grid, rows, cols, state=None):
         self.grid = grid
         self.rows = rows
         self.cols = cols
+        self.state = state
         shape_cells = {}
         for r, row in enumerate(grid):
             for c, cell in enumerate(row):
@@ -53,19 +54,20 @@ class CommunicatingVesselsPuzzle(Puzzle):
 
         self.shapes = []
         for cells in shape_cells.values():
-            self.shapes.append(CommunicatingVesselShape(cells))
+            self.shapes.append(AquariumShape(cells))
 
         if state is None:
-            water = [[None for _ in row] for row in grid]
-            rows_missing = rows.copy()
-            cols_missing = cols.copy()
-            rows_available = [len(cols)] * len(rows)
-            cols_available = [len(rows)] * len(cols)
-            state = CommunicatingVesselsPuzzleState(
-                rows_missing, cols_missing, rows_available, cols_available, water
-            )
+            self.initialize_state()
 
-        self.state = state
+    def initialize_state(self):
+        water = [[None for _ in row] for row in self.grid]
+        rows_missing = self.rows.copy()
+        cols_missing = self.cols.copy()
+        rows_available = [len(self.cols)] * len(self.rows)
+        cols_available = [len(self.rows)] * len(self.cols)
+        self.state = AquariumPuzzleState(
+            rows_missing, cols_missing, rows_available, cols_available, water
+        )
 
     @classmethod
     def from_string(cls, string):
@@ -111,8 +113,17 @@ class CommunicatingVesselsPuzzle(Puzzle):
 
         return available >= missing >= 0
 
-    def can_set_value(self, shape_idx, r, value):
+    def iter_locations(self):
+        for shape_idx, shape in enumerate(self.shapes):
+            for r in shape.heights:
+                yield (shape_idx, r)
+
+    def iter_values(self):
+        yield from (0, 1)
+
+    def can_set(self, location, value):
         """NOTE: does not check rows above or below"""
+        shape_idx, r = location
         shape = self.shapes[shape_idx]
 
         if not self._can_set_value(
@@ -146,14 +157,22 @@ class CommunicatingVesselsPuzzle(Puzzle):
                 self.state.cols_missing[c] -= delta * value
                 self.state.cols_available[c] -= delta
 
-    def set_value(self, shape_idx, r, value):
+    def get_value(self, location):
+        shape_idx, r = location
+        c = self.shapes[shape_idx].cells_by_height[r][0]
+        return self.state.water[r][c]
+
+    def set_value(self, location, value):
+        shape_idx, r = location
         shape = self.shapes[shape_idx]
         for c in shape.cells_by_height[r]:
             self.state.water[r][c] = value
 
         self._update_value(shape_idx, r, value, 1)
+        assert self.get_value((shape_idx, r)) == value
 
-    def unset_value(self, shape_idx, r):
+    def unset_value(self, location):
+        shape_idx, r = location
         shape = self.shapes[shape_idx]
         for c in shape.cells_by_height[r]:
             value = self.state.water[r][c]

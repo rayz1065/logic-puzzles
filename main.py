@@ -2,7 +2,7 @@ import sys
 import argparse
 import json
 import kakuro.puzzle, kakuro.solver
-import communicating_vessels.puzzle, communicating_vessels.solver
+import aquarium.puzzle, aquarium.solver
 import einstein.puzzle, einstein.solver
 import magical_maze.puzzle, magical_maze.solver
 import skyscrapers.puzzle, skyscrapers.solver
@@ -20,9 +20,9 @@ import futoshiki.puzzle, futoshiki.solver
 
 PUZZLES = {
     "kakuro": (kakuro.puzzle.KakuroPuzzle, kakuro.solver.KakuroSolver),
-    "communicating_vessels": (
-        communicating_vessels.puzzle.CommunicatingVesselsPuzzle,
-        communicating_vessels.solver.CommunicatingVesselsSolver,
+    "aquarium": (
+        aquarium.puzzle.AquariumPuzzle,
+        aquarium.solver.AquariumSolver,
     ),
     "einstein": (einstein.puzzle.EinsteinPuzzle, einstein.solver.EinsteinSolver),
     "magical_maze": (
