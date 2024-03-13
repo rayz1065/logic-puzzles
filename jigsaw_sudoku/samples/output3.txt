@@ -1,0 +1,16 @@
+Found 1 solutions
+-----------------
+B 6 7 4 5 D 1 9 3 A 2 C E 8
+2 3 C 9 1 B 6 D E 8 7 5 A 4
+E A 8 5 D 7 C 3 1 4 6 B 2 9
+D 5 1 2 E 8 9 4 A B C 7 3 6
+7 8 5 D B E 3 2 4 6 1 A 9 C
+1 9 6 8 C 4 A 7 2 3 B E D 5
+4 C A 1 7 9 E 5 8 D 3 2 6 B
+6 E 2 C A 3 D B 7 9 8 4 5 1
+A B 4 E 8 6 2 1 5 7 9 D C 3
+3 2 9 7 6 C 4 E B 5 A 8 1 D
+5 D 3 B 9 A 8 C 6 2 E 1 4 7
+8 4 D A 3 2 B 6 C 1 5 9 7 E
+9 1 E 3 2 5 7 8 D C 4 6 B A
+C 7 B 6 4 1 5 A 9 E D 3 8 2
