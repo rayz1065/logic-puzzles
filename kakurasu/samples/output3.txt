@@ -1,0 +1,10 @@
+Found 1 solutions
+-----------------
+.  .  o  .  .  .  o  10
+.  o  o  o  o  .  o  21
+o  .  o  .  o  o  o  22
+.  o  o  .  o  o  o  23
+o  .  .  .  .  .  .  1
+o  .  o  o  o  o  .  19
+o  o  .  o  .  o  o  20
+21 13 16 15 15 20 17

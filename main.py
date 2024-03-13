@@ -19,6 +19,7 @@ import sudoku.puzzle, sudoku.solver
 import futoshiki.puzzle, futoshiki.solver
 import stitches.puzzle, stitches.solver
 import jigsaw_sudoku.puzzle, jigsaw_sudoku.solver
+import kakurasu.puzzle, kakurasu.solver
 
 PUZZLES = {
     "kakuro": (kakuro.puzzle.KakuroPuzzle, kakuro.solver.KakuroSolver),
@@ -63,6 +64,7 @@ PUZZLES = {
         jigsaw_sudoku.puzzle.JigsawSudokuPuzzle,
         jigsaw_sudoku.solver.JigsawSudokuSolver,
     ),
+    "kakurasu": (kakurasu.puzzle.KakurasuPuzzle, kakurasu.solver.KakurasuSolver),
 }
 
 

@@ -1,0 +1,9 @@
+Found 1 solutions
+-----------------
+o  o  .  o  o  o  18
+o  .  .  o  .  .  5
+o  o  .  o  o  o  18
+.  o  o  .  o  .  10
+o  o  o  .  .  o  12
+.  .  .  o  o  .  9
+11 13 9  12 14 9 

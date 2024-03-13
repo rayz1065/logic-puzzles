@@ -1,0 +1,12 @@
+Found 1 solutions
+-----------------
+o  o  o  .  o  o  o  o  o  41
+o  o  o  o  .  o  o  o  o  40
+.  .  o  o  .  o  o  o  o  37
+.  .  .  o  o  .  o  .  .  16
+o  o  o  .  .  o  o  .  .  19
+.  o  .  .  .  .  .  .  .  2
+o  o  .  .  o  .  .  o  .  16
+o  o  o  .  .  .  o  o  .  21
+o  o  .  .  .  o  o  o  o  33
+32 38 19 9  12 20 32 30 15
