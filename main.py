@@ -17,6 +17,7 @@ import galaxies.puzzle, galaxies.solver
 import hitori.puzzle, hitori.solver
 import sudoku.puzzle, sudoku.solver
 import futoshiki.puzzle, futoshiki.solver
+import stitches.puzzle, stitches.solver
 
 PUZZLES = {
     "kakuro": (kakuro.puzzle.KakuroPuzzle, kakuro.solver.KakuroSolver),
@@ -56,6 +57,7 @@ PUZZLES = {
     "hitori": (hitori.puzzle.HitoriPuzzle, hitori.solver.HitoriSolver),
     "sudoku": (sudoku.puzzle.SudokuPuzzle, sudoku.solver.SudokuSolver),
     "futoshiki": (futoshiki.puzzle.FutoshikiPuzzle, futoshiki.solver.FutoshikiSolver),
+    "stitches": (stitches.puzzle.StitchesPuzzle, stitches.solver.StitchesSolver),
 }
 
 
