@@ -115,32 +115,28 @@ class SimpleBranchingSolver(Solver, ABC):
         return self.puzzle.get_value(location) is not None
 
     def _update_all_dirty(self, dirty):
+        updated = set()
+
         while len(dirty) > 0:
             location = dirty.pop()
             if self.is_location_set(location):
                 continue
 
             valid_values = self.puzzle.get_valid_values(location)
-            if len(valid_values) <= 1:
-                break
-        else:
-            # failed to find an unset location that doesn't require branching
-            return set()
+            if len(valid_values) == 0:
+                # unset all the updated values and report the failure
+                for location in updated:
+                    self.puzzle.unset_value(location)
+                return None
 
-        if len(valid_values) == 0:
-            # puzzle state is invalid
-            return None
+            if len(valid_values) > 1:
+                continue
 
-        value = valid_values[0]
-        self.puzzle.set_value(location, value)
-        dirty.update(self._compute_dirty(location))
-        updated = self._update_all_dirty(dirty)
+            value = valid_values[0]
+            self.puzzle.set_value(location, value)
+            dirty.update(self._compute_dirty(location))
+            updated.add(location)
 
-        if updated is None:
-            self.puzzle.unset_value(location)
-            return None
-
-        updated.add(location)
         return updated
 
     def _solve_dirty(self, dirty):
