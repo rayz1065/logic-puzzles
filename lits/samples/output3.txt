@@ -1,0 +1,17 @@
+Found 1 solutions
+-----------------
+L T T T . I I I I L L L T T T
+L . T . L L . . . . . L . T .
+L L . . . L T T T L L . . . I
+. S S . S L . T . . L S S . I
+S S . S S . S . . . L . S S I
+. L L S . S S . . . . . . . I
+. . L . . S . . S S I I I I .
+. . L I L L L S S . . . L . .
+. T . I . . L . L L L . L L L
+. T T I . S S . . . L T . . I
+I T . I . . S S I . . T T . I
+I . T T T S . . I . . T . . I
+I . . T . S S . I S S . . . I
+I . . L . . S . I . S S . . .
+. L L L . . . . . . . I I I I

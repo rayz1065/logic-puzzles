@@ -1,0 +1,12 @@
+Found 1 solutions
+-----------------
+T T T . T T T . . .
+. T . . . T . . L L
+. S S L L S S . L .
+S S . L . . S S L .
+I . . L . . L . . .
+I . T T T . L S S .
+I . . T . L L . S S
+I . . L . T . . L .
+. L L L . T T . L .
+. . . . . T . L L .

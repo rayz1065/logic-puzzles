@@ -21,6 +21,7 @@ import stitches.puzzle, stitches.solver
 import jigsaw_sudoku.puzzle, jigsaw_sudoku.solver
 import kakurasu.puzzle, kakurasu.solver
 import minesweeper.puzzle, minesweeper.solver
+import lits.puzzle, lits.solver
 import renzoku.puzzle, renzoku.solver
 
 PUZZLES = {
@@ -71,6 +72,7 @@ PUZZLES = {
         minesweeper.puzzle.MinesweeperPuzzle,
         minesweeper.solver.MinesweeperSolver,
     ),
+    "lits": (lits.puzzle.LitsPuzzle, lits.solver.LitsSolver),
     "renzoku": (renzoku.puzzle.RenzokuPuzzle, renzoku.solver.RenzokuSolver),
 }
 

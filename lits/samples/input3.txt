@@ -1,0 +1,15 @@
+1 2 2 2 7 7 7 7 7 8 8 8 9 9 9
+1 1 2 3 6 6 7 7 7 7 B 8 8 9 0
+1 1 3 3 6 6 H H H B B A 8 8 0
+3 3 3 3 5 6 G H M M B A A 0 0
+3 3 3 5 5 G G H M M B B A A 0
+C 4 4 5 G G G H H M M B B M 0
+C C 4 G G G K K L L M M M M M
+D C 4 F K K K L L S T T N M M
+D C C F K R K S S S S T N N N
+D C C F K R R S U U S T N O O
+D C I F K J R R Q U S T T U O
+D I I I I J R R Q U T T U U O
+D I D I I J J R Q U U T U U O
+D D D E I I J R Q Q U U U U U
+E E E E I I I R R Q P P P P P
