@@ -26,8 +26,7 @@ class StitchesSolver(SimpleBranchingSolver):
             # the region of the cell
             region = self.puzzle.initial_grid[r][c]
             dirty.update(
-                ("grid", (new_r, new_c))
-                for new_r, new_c in self.puzzle.regions[region]
+                ("grid", (new_r, new_c)) for new_r, new_c in self.puzzle.regions[region]
             )
 
             # the stitches in the region
@@ -43,30 +42,10 @@ class StitchesSolver(SimpleBranchingSolver):
         if location[0] == "link":
             return -math.inf
 
-        def compute_score(found, empty, target, total):
-            missing = target - found
-            available = total - found - empty
-            return -math.comb(available, missing)
-
         r, c = location[1]
+        constraints = self.puzzle.get_cell_constraints(r, c)
         region = self.puzzle.initial_grid[r][c]
         return max(
-            compute_score(
-                self.state.found_by_row[r, 1],
-                self.state.found_by_row[r, 0],
-                self.puzzle.target_by_row[r],
-                self.puzzle.grid_utils.cols,
-            ),
-            compute_score(
-                self.state.found_by_col[c, 1],
-                self.state.found_by_col[c, 0],
-                self.puzzle.target_by_col[c],
-                self.puzzle.grid_utils.rows,
-            ),
-            compute_score(
-                self.state.found_by_region[region, 1],
-                self.state.found_by_region[region, 0],
-                self.puzzle.target_by_region[region],
-                len(self.puzzle.regions[region]),
-            ),
+            constraint.get_branching_score(found, empty)
+            for constraint, found, empty in constraints
         )

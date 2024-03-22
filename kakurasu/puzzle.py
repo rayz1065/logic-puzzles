@@ -1,5 +1,6 @@
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils
+from logic_puzzles.constraints import SumConstraint
 
 
 class KakurasuPuzzleState(PuzzleState):
@@ -14,8 +15,10 @@ class KakurasuPuzzleState(PuzzleState):
 
 
 class KakurasuPuzzle(Puzzle):
-    counts_by_rows: list[int]
-    counts_by_cols: list[int]
+    target_by_rows: list[int]
+    target_by_cols: list[int]
+    row_constraints: list[SumConstraint]
+    col_constraints: list[SumConstraint]
     state: KakurasuPuzzleState
     grid_utils: GridUtils
 
@@ -23,24 +26,34 @@ class KakurasuPuzzle(Puzzle):
     def from_string(cls, string):
         lines = [x.strip() for x in string.split("\n")]
         lines = [x.split() for x in lines if x and not x.startswith("#")]
-        counts_by_rows = [int(x) for x in lines[0]]
-        counts_by_cols = [int(x) for x in lines[1]]
+        target_by_rows = [int(x) for x in lines[0]]
+        target_by_cols = [int(x) for x in lines[1]]
 
-        return cls(counts_by_rows, counts_by_cols)
+        return cls(target_by_rows, target_by_cols)
 
-    def __init__(self, counts_by_rows, counts_by_cols, state=None):
-        self.counts_by_rows = counts_by_rows
-        self.counts_by_cols = counts_by_cols
+    def __init__(self, target_by_rows, target_by_cols, state=None):
+        self.target_by_rows = target_by_rows
+        self.target_by_cols = target_by_cols
         self.state = state
 
-        self.grid_utils = GridUtils(len(counts_by_rows), len(counts_by_cols))
+        self.grid_utils = GridUtils(len(target_by_rows), len(target_by_cols))
+
+        max_row_sum = self.grid_utils.cols * (self.grid_utils.cols + 1) // 2
+        max_col_sum = self.grid_utils.rows * (self.grid_utils.rows + 1) // 2
+
+        self.row_constraints = [
+            SumConstraint(target, max_row_sum) for target in target_by_rows
+        ]
+        self.col_constraints = [
+            SumConstraint(target, max_col_sum) for target in target_by_cols
+        ]
 
         if state is None:
             self.initialize_state()
 
     def initialize_state(self):
         self.state = KakurasuPuzzleState(
-            grid=[[None for _ in self.counts_by_cols] for _ in self.counts_by_rows],
+            grid=[[None for _ in self.target_by_cols] for _ in self.target_by_rows],
             found_by_rows={
                 (r, value): 0
                 for r in range(self.grid_utils.rows)
@@ -59,7 +72,7 @@ class KakurasuPuzzle(Puzzle):
                 return "_"
             return "o" if self.state.grid[r][c] else "."
 
-        max_number_len = max(len(str(x)) for x in self.counts_by_cols)
+        max_number_len = max(len(str(x)) for x in self.target_by_cols)
 
         res = []
         for r in range(self.grid_utils.rows):
@@ -68,9 +81,9 @@ class KakurasuPuzzle(Puzzle):
                     stringify_cell(r, c).ljust(max_number_len)
                     for c in range(self.grid_utils.cols)
                 )
-                + f" {self.counts_by_rows[r]}"
+                + f" {self.target_by_rows[r]}"
             )
-        res.append(" ".join(str(x).ljust(max_number_len) for x in self.counts_by_cols))
+        res.append(" ".join(str(x).ljust(max_number_len) for x in self.target_by_cols))
 
         return "\n".join(res)
 
@@ -85,22 +98,10 @@ class KakurasuPuzzle(Puzzle):
 
         self.set_value(location, value)
 
-        def _check_bounds(found, empty, target, total):
-            missing = target - found
-            available = total - found - empty
-            return 0 <= missing <= available
-
-        # check that we don't over(under)-shoot the target
-        res = _check_bounds(
-            self.state.found_by_rows[(r, 1)],
-            self.state.found_by_rows[(r, 0)],
-            self.counts_by_rows[r],
-            self.grid_utils.cols * (self.grid_utils.cols + 1) // 2,
-        ) and _check_bounds(
-            self.state.found_by_cols[(c, 1)],
-            self.state.found_by_cols[(c, 0)],
-            self.counts_by_cols[c],
-            self.grid_utils.rows * (self.grid_utils.rows + 1) // 2,
+        res = self.row_constraints[r].check(
+            self.state.found_by_rows[(r, 1)], self.state.found_by_rows[(r, 0)]
+        ) and self.col_constraints[c].check(
+            self.state.found_by_cols[(c, 1)], self.state.found_by_cols[(c, 0)]
         )
 
         self.unset_value(location)

@@ -1,6 +1,7 @@
 from collections import namedtuple
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils, ARROWS
+from logic_puzzles.constraints import CountConstraint
 
 DIRECTION_ARROW = {value: key for key, value in ARROWS.items()}
 
@@ -120,6 +121,17 @@ class StitchesPuzzle(Puzzle):
             region: len(self.neighbors_by_region[region])
             * self.stitches_by_regions_pair
             for region in self.neighbors_by_region.keys()
+        }
+
+        self.row_constraints = [
+            CountConstraint(target, self.grid_utils.cols) for target in target_by_row
+        ]
+        self.col_constraints = [
+            CountConstraint(target, self.grid_utils.rows) for target in target_by_col
+        ]
+        self.region_constraints = {
+            region: CountConstraint(self.target_by_region[region], len(cells))
+            for region, cells in self.regions.items()
         }
 
         if state is None:
@@ -244,6 +256,28 @@ class StitchesPuzzle(Puzzle):
 
         return res
 
+    def get_cell_constraints(self, r, c):
+        region = self.initial_grid[r][c]
+        res = [
+            (
+                self.row_constraints[r],
+                self.state.found_by_row[r, 1],
+                self.state.found_by_row[r, 0],
+            ),
+            (
+                self.col_constraints[c],
+                self.state.found_by_col[c, 1],
+                self.state.found_by_col[c, 0],
+            ),
+            (
+                self.region_constraints[region],
+                self.state.found_by_region[region, 1],
+                self.state.found_by_region[region, 0],
+            ),
+        ]
+
+        return res
+
     def can_set_grid(self, r, c, value):
         # check that this hole is not required
         if value == 0 and self.state.used_holes[r, c] is not None:
@@ -259,35 +293,10 @@ class StitchesPuzzle(Puzzle):
         self.set_value(("cell", (r, c)), value)
 
         region = self.initial_grid[r][c]
-        BOUNDS = [
-            (
-                self.state.found_by_row[r, 1],
-                self.state.found_by_row[r, 0],
-                self.target_by_row[r],
-                self.grid_utils.cols,
-            ),
-            (
-                self.state.found_by_col[c, 1],
-                self.state.found_by_col[c, 0],
-                self.target_by_col[c],
-                self.grid_utils.rows,
-            ),
-            (
-                self.state.found_by_region[region, 1],
-                self.state.found_by_region[region, 0],
-                self.target_by_region[region],
-                len(self.regions[region]),
-            ),
-        ]
-
-        def _check_bounds(found, empty, target, total):
-            missing = target - found
-            available = total - found - empty
-            return 0 <= missing <= available
+        constraints = self.get_cell_constraints(r, c)
 
         res = all(
-            _check_bounds(found, empty, target, total)
-            for found, empty, target, total in BOUNDS
+            constraint.check(found, empty) for constraint, found, empty in constraints
         )
 
         self.unset_value(("cell", (r, c)))

@@ -26,8 +26,8 @@ def check_sum_possible(available, target):
 class KakurasuSolver(SimpleBranchingSolver):
     def get_branching_score(self, location):
         r, c = location
-        missing_r = self.puzzle.counts_by_rows[r] - self.state.found_by_rows[r, 1]
-        missing_c = self.puzzle.counts_by_cols[c] - self.state.found_by_cols[c, 1]
+        missing_r = self.puzzle.target_by_rows[r] - self.state.found_by_rows[r, 1]
+        missing_c = self.puzzle.target_by_cols[c] - self.state.found_by_cols[c, 1]
 
         return -min(missing_r, missing_c)
 
@@ -49,13 +49,16 @@ class KakurasuSolver(SimpleBranchingSolver):
             # suppose this value were 1, could we achieve exactly the target?
             self.puzzle.set_value((r, c), 1)
 
+            row_constraint = self.puzzle.row_constraints[r]
+            col_constraint = self.puzzle.col_constraints[c]
+
             constraints = [
                 (
-                    self.puzzle.counts_by_rows[r] - self.state.found_by_rows[(r, 1)],
+                    row_constraint.get_missing(self.state.found_by_rows[(r, 1)]),
                     tuple(x is None for x in self.state.grid[r]),
                 ),
                 (
-                    self.puzzle.counts_by_cols[c] - self.state.found_by_cols[(c, 1)],
+                    col_constraint.get_missing(self.state.found_by_cols[(c, 1)]),
                     tuple(x[c] is None for x in self.state.grid),
                 ),
             ]

@@ -1,14 +1,13 @@
-from functools import cache
 from logic_puzzles.puzzle import Puzzle, PuzzleState
 from logic_puzzles.grid_utils import GridUtils, ORTHOGONAL_DIRECTIONS, ALL_DIRECTIONS
+from logic_puzzles.constraints import CountConstraint
 
 
 class LightUpPuzzleState(PuzzleState):
     grid: list[list[int | None]]
     lit: list[list[int]]
     available_lights: list[list[int]]
-    # found value -> box_id -> value frequency
-    found_by_box: tuple[list[int], list[int]]
+    found_by_box: dict[tuple[int, int], int]  # (box_id, value) -> frequency
 
     def __init__(self, grid, lit, available_lights, found_by_box):
         self.grid = grid
@@ -23,7 +22,7 @@ class LightUpPuzzle(Puzzle):
     @classmethod
     def from_string(cls, string):
         lines = [x.strip() for x in string.split("\n")]
-        lines = [x.split() for x in lines if x and not x.startswith("#")]
+        lines = [x.lower().split() for x in lines if x and not x.startswith("#")]
         initial_grid = [[int(x) if x.isdigit() else x for x in line] for line in lines]
 
         return cls(initial_grid)
@@ -32,12 +31,15 @@ class LightUpPuzzle(Puzzle):
         self.initial_grid = initial_grid
         self.state = state
         self.grid_utils = GridUtils(len(self.initial_grid), len(self.initial_grid[0]))
-        self.numbered_boxes = []
-        self.box_ids = {}
+        self.box_constraints = {}
         for r, c in self.grid_utils.iter_grid():
-            if isinstance(self.initial_grid[r][c], int):
-                self.box_ids[(r, c)] = len(self.numbered_boxes)
-                self.numbered_boxes.append((r, c))
+            cell = self.initial_grid[r][c]
+            if cell == "." or cell == "x":
+                continue
+
+            self.box_constraints[r, c] = CountConstraint(
+                cell, self.spaces_around_cell(r, c)
+            )
 
         if state is None:
             self.initialize_state()
@@ -81,10 +83,11 @@ class LightUpPuzzle(Puzzle):
                 ]
                 for r in range(self.grid_utils.rows)
             ],
-            found_by_box=(
-                [0] * len(self.numbered_boxes),
-                [0] * len(self.numbered_boxes),
-            ),
+            found_by_box={
+                (box_id, value): 0
+                for box_id in self.box_constraints.keys()
+                for value in self.iter_values()
+            },
         )
 
     def _update_value(self, location, value, delta):
@@ -108,34 +111,23 @@ class LightUpPuzzle(Puzzle):
                     assert self.state.available_lights[new_r][new_c] >= 0
 
             new_r, new_c = r + dr, c + dc
-            if (new_r, new_c) in self.box_ids:
-                box_id = self.box_ids[(new_r, new_c)]
-                self.state.found_by_box[value][box_id] += delta
+            if (new_r, new_c) in self.box_constraints:
+                self.state.found_by_box[(new_r, new_c), value] += delta
 
-    @cache
-    def spaces_around_box(self, box_id):
-        r, c = self.numbered_boxes[box_id]
-        res = 0
-        for new_r, new_c in self.grid_utils.orthogonal_iter(r, c, 1):
-            if self.initial_grid[new_r][new_c] == ".":
-                res += 1
-        return res
-
-    def _check_bounds(self, found, empty, target, total):
-        missing = target - found
-        available = total - found - empty
-        return 0 <= missing <= available
+    def spaces_around_cell(self, r, c):
+        return sum(
+            self.initial_grid[new_r][new_c] == "."
+            for new_r, new_c in self.grid_utils.orthogonal_iter(r, c, 1)
+        )
 
     def _check_box_satisfiable(self, box_r, box_c):
-        if (box_r, box_c) not in self.box_ids:
+        box_id = (box_r, box_c)
+        if box_id not in self.box_constraints:
             return True
 
-        box_id = self.box_ids[box_r, box_c]
-        return self._check_bounds(
-            self.state.found_by_box[1][box_id],
-            self.state.found_by_box[0][box_id],
-            self.initial_grid[box_r][box_c],
-            self.spaces_around_box(box_id),
+        constraint = self.box_constraints[box_id]
+        return constraint.check(
+            self.state.found_by_box[box_id, 1], self.state.found_by_box[box_id, 0]
         )
 
     def can_set(self, location, value):
@@ -187,11 +179,13 @@ class LightUpPuzzle(Puzzle):
 
     def set_value(self, location, value):
         r, c = location
+        assert self.state.grid[r][c] is None
         self.state.grid[r][c] = value
         self._update_value(location, value, 1)
 
     def unset_value(self, location):
         r, c = location
         value = self.state.grid[r][c]
+        assert value is not None
         self.state.grid[r][c] = None
         self._update_value(location, value, -1)

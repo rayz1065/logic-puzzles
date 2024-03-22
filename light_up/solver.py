@@ -16,7 +16,7 @@ class LightUpSolver(SimpleBranchingSolver):
                     dirty.add((new_r, new_c))
 
             box_r, box_c = new_r, new_c
-            if (new_r, new_c) in self.puzzle.box_ids:
+            if (new_r, new_c) in self.puzzle.box_constraints:
                 for new_r, new_c in self.puzzle.grid_utils.orthogonal_iter(
                     box_r, box_c
                 ):
