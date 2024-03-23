@@ -6,15 +6,22 @@ class KakuroSolver(SimpleBranchingSolver):
     puzzle: KakuroPuzzle
 
     def _compute_dirty(self, location):
-        r, c = location
+        location_type, location_data = location
+        r, c, *_ = location_data
         dirty = set()
-        for i in self.puzzle.constraint_indexes[r, c]:
-            cells = self.puzzle.constraints[i][1]
-            for other_r, other_c in cells:
-                if not self.is_location_set((other_r, other_c)):
-                    dirty.add((other_r, other_c))
+        for i in self.puzzle.cell_constraints[r, c]:
+            _, cells = self.puzzle.constraints[i]
+            dirty.update((("cell", cell) for cell in cells))
+            dirty.update(
+                ("hint", (*cell, value))
+                for cell in cells
+                for value in self.puzzle.iter_values()
+            )
 
-        return dirty
+        return set(x for x in dirty if not self.is_location_set(x))
 
     def get_branching_score(self, location):
+        location_type, location_data = location
+        if location_type == "hint":
+            return -1
         return 1
