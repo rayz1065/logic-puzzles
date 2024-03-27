@@ -24,6 +24,7 @@ import minesweeper.puzzle, minesweeper.solver
 import lits.puzzle, lits.solver
 import renzoku.puzzle, renzoku.solver
 import slant.puzzle, slant.solver
+import binairo.puzzle, binairo.solver
 
 PUZZLES = {
     "kakuro": (kakuro.puzzle.KakuroPuzzle, kakuro.solver.KakuroSolver),
@@ -76,6 +77,7 @@ PUZZLES = {
     "lits": (lits.puzzle.LitsPuzzle, lits.solver.LitsSolver),
     "renzoku": (renzoku.puzzle.RenzokuPuzzle, renzoku.solver.RenzokuSolver),
     "slant": (slant.puzzle.SlantPuzzle, slant.solver.SlantSolver),
+    "binairo": (binairo.puzzle.BinairoPuzzle, binairo.solver.BinairoSolver),
 }
 
 
